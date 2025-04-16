@@ -7,31 +7,47 @@
     "build": "next build",
     "start": "next start",
     "biome-write": "npx @biomejs/biome format --write .",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:webchat": "webpack --config webpack.webchat.config.js"
   },
   "dependencies": {
     "@floating-ui/react-dom": "^2.1.1",
     "classnames": "^2.5.1",
     "compressorjs": "^1.2.1",
-    "next": "15.2.3",
+    "fs": "^0.0.1-security",
+    "next": "^15.3.0",
     "postcss": "^8.4.39",
     "postcss-preset-env": "^9.5.15",
     "prismjs": "^1.29.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-icons": "^5.2.1",
-    "sass": "^1.77.6",
-    "sharp": "^0.33.4"
+    "sharp": "^0.33.4",
+    "webpack": "^5.99.5"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.27.0",
     "@biomejs/biome": "1.9.4",
     "@csstools/postcss-global-data": "^2.1.1",
     "@types/node": "20.17.23",
     "@types/react": "19.0.1",
     "@types/react-dom": "19.0.2",
+    "babel-loader": "^10.0.0",
+    "buffer": "^6.0.3",
+    "css-loader": "^7.1.2",
+    "eslint": "^9.24.0",
     "postcss-custom-media": "^10.0.7",
     "postcss-flexbugs-fixes": "^5.0.2",
-    "typescript": "5.8.2"
+    "process": "^0.11.10",
+    "sass": "^1.86.3",
+    "sass-loader": "^16.0.5",
+    "stream-browserify": "^3.0.0",
+    "style-loader": "^4.0.0",
+    "typescript": "^5.8.3",
+    "webpack-cli": "^6.0.1"
   },
   "overrides": {
     "@types/react": "19.0.1",

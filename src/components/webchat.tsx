@@ -48,6 +48,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                             x: 50,
                             y: 100,
                             radius: 50,
+                            cursor: false
                         }}
                         gradient={{
                             display: true,
@@ -97,6 +98,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                                     <Text
                                         onBackground={message.type === MessageType.User ? "neutral-strong" : "neutral-medium"}
                                         variant="label-default-l"
+                                        style={{ fontFamily: widgetStyle.fontFamily }}
                                     >
                                         {message.text}
                                     </Text>

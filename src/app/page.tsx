@@ -13,11 +13,11 @@ import {
   Scroller,
   Flex,
   IconButton,
-  ToggleButton
+  ToggleButton,
+  Button
 } from "@/once-ui/components";
 import { CodeBlock } from "@/once-ui/modules";
 import WebChat, { WidgetStyle, MessageType } from "@/components/webchat";
-import { useRouter } from "next/navigation";
 
 enum BubblePosition {
   Start = "start",
@@ -33,6 +33,37 @@ enum WidgetStyleType {
 
 
 export default function Home() {
+  const [customAccentColor, setCustomAccentColor] = useState<string | null>(null);
+  const [customBrandColor, setCustomBrandColor] = useState<string | null>(null);
+
+
+  React.useEffect(() => {
+    async function updateColors() {
+      try {
+        const response = await fetch('/api/generateColors', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ brandColor: customBrandColor, accentColor: customAccentColor }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update colors');
+        }
+
+        const data = await response.json();
+        console.log(data.message);
+      } catch (error) {
+        console.error('Error updating colors:', error);
+      }
+    }
+
+    if (customAccentColor || customBrandColor) {
+      updateColors();
+    }
+  }, [customAccentColor, customBrandColor]);
+
   const generateRandomString = (length: number) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -61,13 +92,24 @@ export default function Home() {
     brandColor: "#ffffff",
     accentColor: "#000000",
     fontFamily: "Arial",
+    bubblePosition: BubblePosition.Start
   });
 
-  const handleWidgetStyle = (value: any, type: WidgetStyleType) => {
+  const handleWidgetStyle = (value: any, type: WidgetStyleType, isCustom: boolean = false) => {
     if (type === WidgetStyleType.brandColor) {
-      updateBrand(value);
+      if (isCustom) {
+        updateBrand('custom');
+        setCustomBrandColor(value);
+      } else {
+        updateBrand(value);
+      }
     } else if (type === WidgetStyleType.accentColor) {
-      updateAccent(value);
+      if (isCustom) {
+        updateAccent('custom');
+        setCustomAccentColor(value);
+      } else {
+        updateAccent(value);
+      }
     }
     setWidgetStyle({
       ...widgetStyle,
@@ -88,18 +130,18 @@ export default function Home() {
       <Row gap="m" horizontal="space-between">
         <ThemeSwitcher center />
         <Flex fillWidth radius="s">
-          <ToggleButton
-            variant="outline"
+          <Button
+            variant="secondary"
             weight="default"
             suffixIcon="close"
+            className="button"
             size="l"
             onClick={() => {
-              const router = useRouter();
-              router.push('/');
+              window.location.href = "/";
             }}
           >
             Exit
-          </ToggleButton>
+          </Button>
         </Flex>
       </Row>
       <Heading>Fonki Chat Builder</Heading>
@@ -172,7 +214,7 @@ export default function Home() {
               id="brand-color"
               label="Custom brand color"
               value={widgetStyle.brandColor}
-              onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.brandColor)}
+              onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.brandColor, true)}
             />
           </Column>
           <Column key="accent" gap="xs" fillWidth radius="s">
@@ -317,7 +359,7 @@ export default function Home() {
               id="accent-color"
               label="Custom accent color"
               value={widgetStyle.accentColor}
-              onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.accentColor)}
+              onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.accentColor, true)}
             />
           </Column>
           <Column key="font-family" gap="xs" fillWidth radius="s">
@@ -348,22 +390,48 @@ export default function Home() {
         </Column>
 
         {/* Code snippet */}
-        <Column horizontal="center" data-border="rounded" gap="s" radius="s" width={"xs"}>
-          <Heading as="h3" variant="body-default-l">Copy the code and paste it in your website</Heading>
+        <Column horizontal="center" data-border="rounded" gap="s" radius="s" width="xs">
+          <Heading as="h3" variant="body-default-l">
+            Copy the code and paste it in your website
+          </Heading>
           <CodeBlock
             codeInstances={[
               {
-                code: '<Button\n    className="button"\n    suffixIcon="chevronRight">\n    Next\n</Button>',
-                label: 'Next.js',
-                language: 'tsx'
-              }
+                code: `<!DOCTYPE html>
+  <head>
+    <title>Fonki Chat Widget</title>
+    <script src="src/public/embed/webchat.js"></script>
+  </head>
+  <body>
+    <div id="webchat-container"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
+          window.renderWebchat.renderWebchat('webchat-container', {
+            brandColor: '${customBrandColor ? 'custom' : widgetStyle.brandColor}',
+            accentColor: '${customAccentColor ? 'custom' : widgetStyle.accentColor}',
+            fontFamily: '${widgetStyle.fontFamily}',
+            bubblePosition: '${widgetStyle.bubblePosition}',
+          });
+        } else {
+          console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
+        }
+      });
+    </script>
+  </body>
+</html>`,
+                label: 'HTML',
+                language: 'html',
+              },
             ]}
             copyButton={true}
-            compact={true}
+            compact={false}
+            textSize="xs"
           />
         </Column>
 
       </Row >
     </Column >
+
   );
 }

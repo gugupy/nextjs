@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test</title>
+  <script src="src/public/embed/webchat.js"></script>
+</head>
+<body>
+  <div id="webchat-container"></div>
+  <!-- <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script> -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
+        window.renderWebchat.renderWebchat('webchat-container', {
+          msgs: [
+            { id: '1', text: 'Hello!', type: 'bot', timestamp: new Date() },
+          ],
+          brandColor: '#007bff',
+          accentColor: '#28a745',
+          fontFamily: 'sans-serif',
+          bubblePosition: 'end',
+        });
+      } else {
+        console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
+      }
+    });
+  </script>
+</body>
+</html>

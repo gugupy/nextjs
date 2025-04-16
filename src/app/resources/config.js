@@ -3,8 +3,8 @@ const baseURL = "demo.once-ui.com";
 // default customization applied to the HTML in the main layout.tsx
 const style = {
   theme: "dark",
-  brand: "violet",
-  accent: "violet",
+  brand: "custom",
+  accent: "custom",
   neutral: "slate",
   border: "rounded",
   solid: "color",

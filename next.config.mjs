@@ -6,6 +6,9 @@ const nextConfig = {
     compiler: "modern",
     silenceDeprecations: ["legacy-js-api"],
   },
+  env: {
+    NEXT_VERBOSE: 'true',
+  },
 };
 
 export default nextConfig;
