@@ -101,10 +101,10 @@ export default function Home() {
   ];
 
   const [widgetStyle, setWidgetStyle] = useState<WidgetStyle>({
-    brandColor: "#ffffff",
-    accentColor: "#000000",
+    brandColor: "blue",
+    accentColor: "blue",
     fontFamily: "Arial",
-    bubblePosition: BubblePosition.Start
+    bubblePosition: BubblePosition.End
   });
 
   const handleWidgetStyle = (value: any, type: WidgetStyleType, isCustom: boolean = false) => {
@@ -138,30 +138,32 @@ export default function Home() {
   }
 
   return (
-    <Column fillWidth paddingY="s" paddingX="s" horizontal="center" flex={1} gap="s">
-      <Row gap="m" horizontal="space-between">
-        <ThemeSwitcher center />
-        <Flex fillWidth radius="s">
-          <Button
-            variant="secondary"
-            weight="default"
-            suffixIcon="close"
-            className="button"
-            size="l"
-            onClick={() => {
-              window.location.href = "/";
-            }}
-          >
-            Exit
-          </Button>
-        </Flex>
+    <>
+      {/* Header */}
+      <Row gap="m" horizontal="space-around" paddingY="m">
+        <ThemeSwitcher center color="accent-alpha-strong" />
+        <Heading>Fonki Chat Builder</Heading>
+        <Button
+          variant="secondary"
+          weight="default"
+          suffixIcon="close"
+          className="button"
+          size="l"
+          onClick={() => {
+            window.location.href = "/";
+          }}
+        >
+          Exit
+        </Button>
       </Row>
-      <Heading>Fonki Chat Builder</Heading>
-      <Row gap="2" mobileDirection="column">
+
+      {/* Main Content */}
+      {/* <Column fillWidth paddingY="s" paddingX="s" horizontal="center" flex={1} gap="s"> */}
+      <Row gap="xl" mobileDirection="column" horizontal="center">
         {/* Widget Configurator */}
         <Column horizontal="center" gap="xs">
           <Heading as="h3" variant="body-default-l">Configure Chat Widget</Heading>
-          <Column border="neutral-alpha-strong" padding="xs" gap="s" radius="s" maxWidth={25} fitHeight>
+          <Column border="neutral-alpha-strong" padding="xs" gap="s" radius="xl" maxWidth={25}>
             <Column key="brand" gap="xs" fillWidth radius="s">
               <Text>Brand</Text>
               <Scroller
@@ -194,8 +196,7 @@ export default function Home() {
                         background: `var(--scheme-${color}-500)`,
                         borderColor: `var(--scheme-${color}-700)`,
                       }}
-                      onClick={() => { handleWidgetStyle(color, WidgetStyleType.brandColor); setCustomBrandColor(null); }}
-                    />
+                      onClick={() => { handleWidgetStyle(color, WidgetStyleType.brandColor); setCustomBrandColor(null); }} />
                   </Flex>
                 ))}
               </Scroller>
@@ -203,8 +204,7 @@ export default function Home() {
                 id="brand-color"
                 label="Custom brand color"
                 value={widgetStyle.brandColor}
-                onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.brandColor, true)}
-              />
+                onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.brandColor, true)} />
             </Column>
             <Column key="accent" gap="xs" fillWidth radius="s">
               <Text>Accent</Text>
@@ -238,8 +238,7 @@ export default function Home() {
                         background: `var(--scheme-${color}-500)`,
                         borderColor: `var(--scheme-${color}-700)`,
                       }}
-                      onClick={() => { handleWidgetStyle(color, WidgetStyleType.accentColor); setCustomAccentColor(null); }}
-                    />
+                      onClick={() => { handleWidgetStyle(color, WidgetStyleType.accentColor); setCustomAccentColor(null); }} />
                   </Flex>
                 ))}
               </Scroller>
@@ -247,8 +246,7 @@ export default function Home() {
                 id="accent-color"
                 label="Custom accent color"
                 value={widgetStyle.accentColor}
-                onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.accentColor, true)}
-              />
+                onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.accentColor, true)} />
             </Column>
             <Column key="font-family" gap="xs" fillWidth radius="s">
               <Text>Font Family</Text>
@@ -258,15 +256,15 @@ export default function Home() {
             <Column fillWidth vertical="stretch" gap="xs">
               <Text>Bubble Position</Text>
               <Row fillWidth>
-                <ToggleButton variant="outline" prefixIcon="chevronLeft" radius="left" weight="default" onClick={() => setWidgetStyle({ ...widgetStyle, bubblePosition: 'start' })} fillWidth>Left</ToggleButton>
-                <ToggleButton variant="outline" suffixIcon="chevronRight" radius="right" weight="default" onClick={() => setWidgetStyle({ ...widgetStyle, bubblePosition: 'end' })} fillWidth aria-controls="panel-dark">Right</ToggleButton>
+                <ToggleButton variant="outline" prefixIcon="chevronLeft" radius="left" weight="default" onClick={() => setWidgetStyle({ ...widgetStyle, bubblePosition: BubblePosition.Start })} fillWidth selected={widgetStyle.bubblePosition === BubblePosition.Start}>Left</ToggleButton>
+                <ToggleButton variant="outline" suffixIcon="chevronRight" radius="right" weight="default" onClick={() => setWidgetStyle({ ...widgetStyle, bubblePosition: 'end' })} fillWidth aria-controls="panel-dark" selected={widgetStyle.bubblePosition === BubblePosition.End}>Right</ToggleButton>
               </Row>
             </Column>
           </Column>
         </Column>
 
         {/* Widget Preview */}
-        <Column horizontal="center" width="xs" gap="s" radius="s">
+        <Column horizontal="center" gap="s" radius="s">
           <Heading as="h3" variant="body-default-l">Preview</Heading>
           <WebChat
             key={`${widgetStyle.brandColor}-${widgetStyle.accentColor}-${widgetStyle.fontFamily}`}
@@ -274,12 +272,11 @@ export default function Home() {
             accentColor={widgetStyle.accentColor}
             fontFamily={widgetStyle.fontFamily}
             bubblePosition={widgetStyle.bubblePosition}
-            msgs={messages}
-          />
+            msgs={messages} />
         </Column>
 
         {/* Code snippet */}
-        <Column horizontal="center" data-border="rounded" gap="s" radius="s" width="xs">
+        <Column horizontal="center" data-border="rounded" gap="s" radius="s" >
           <Heading as="h3" variant="body-default-l">
             Copy the code and paste it in your website
           </Heading>
@@ -317,12 +314,12 @@ export default function Home() {
             ]}
             copyButton={true}
             compact={false}
-            textSize="xs"
-          />
+            textSize="xs" />
         </Column>
 
-      </Row >
-    </Column >
+      </Row>
+      {/* </Column > */}
+    </>
 
   );
 }
