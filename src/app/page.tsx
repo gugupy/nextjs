@@ -35,6 +35,7 @@ enum WidgetStyleType {
 export default function Home() {
   const [customAccentColor, setCustomAccentColor] = useState<string | null>(null);
   const [customBrandColor, setCustomBrandColor] = useState<string | null>(null);
+  const [customSchema, setCustomSchema] = useState<string | null>(null);
 
 
   React.useEffect(() => {
@@ -53,7 +54,16 @@ export default function Home() {
         }
 
         const data = await response.json();
-        console.log(data.message);
+
+        if (data.scss) {
+          setCustomSchema(data.scss);
+          const styleElement = document.createElement('style');
+          styleElement.textContent = data.scss;
+          document.head.appendChild(styleElement);
+        } else if (data.error) {
+          console.error('Error applying custom colors:', data.error);
+        }
+
       } catch (error) {
         console.error('Error updating colors:', error);
       }
@@ -61,6 +71,8 @@ export default function Home() {
 
     if (customAccentColor || customBrandColor) {
       updateColors();
+    } else {
+      setCustomSchema(null);
     }
   }, [customAccentColor, customBrandColor]);
 
@@ -158,57 +170,34 @@ export default function Home() {
                 fillWidth={true}
                 gap="xs"
               >
-                <Flex key="blue" paddingRight="xs">
-                  <IconButton tooltip="blue" tooltipPosition="bottom" size="m" variant="ghost" icon="" style={{ background: "var(--scheme-blue-500)", borderColor: "var(--scheme-blue-700)" }} onClick={() => { handleWidgetStyle("blue", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="indigo" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-indigo-500)", borderColor: "var(--scheme-indigo-700)" }} onClick={() => { handleWidgetStyle("indigo", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="violet" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-violet-500)", borderColor: "var(--scheme-violet-700)" }} onClick={() => { handleWidgetStyle("violet", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="magenta" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-magenta-500)", borderColor: "var(--scheme-magenta-700)" }} onClick={() => { handleWidgetStyle("magenta", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="pink" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-pink-500)", borderColor: "var(--scheme-pink-700)" }} onClick={() => { handleWidgetStyle("pink", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="red" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-red-500)", borderColor: "var(--scheme-red-700)" }} onClick={() => { handleWidgetStyle("red", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="orange" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-orange-500)", borderColor: "var(--scheme-orange-700)" }} onClick={() => { handleWidgetStyle("orange", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="yellow" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-yellow-500)", borderColor: "var(--scheme-yellow-700)" }} onClick={() => { handleWidgetStyle("yellow", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="moss" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-moss-500)", borderColor: "var(--scheme-moss-700)" }} onClick={() => { handleWidgetStyle("moss", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="green" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-green-500)", borderColor: "var(--scheme-green-700)" }} onClick={() => { handleWidgetStyle("green", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="emerald" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-emerald-500)", borderColor: "var(--scheme-emerald-700)" }} onClick={() => { handleWidgetStyle("emerald", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="aqua" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-aqua-500)", borderColor: "var(--scheme-aqua-700)" }} onClick={() => { handleWidgetStyle("aqua", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
-
-                <Flex key="cyan" paddingRight="xs">
-                  <IconButton size="m" variant="ghost" icon="" style={{ background: "var(--scheme-cyan-500)", borderColor: "var(--scheme-cyan-700)" }} onClick={() => { handleWidgetStyle("cyan", WidgetStyleType.brandColor) }}></IconButton>
-                </Flex>
+                {[
+                  "blue",
+                  "indigo",
+                  "violet",
+                  "magenta",
+                  "pink",
+                  "red",
+                  "orange",
+                  "yellow",
+                  "moss",
+                  "green",
+                  "emerald",
+                  "aqua",
+                  "cyan",
+                ].map((color) => (
+                  <Flex key={color} paddingRight="xs">
+                    <IconButton
+                      size="m"
+                      variant="ghost"
+                      icon=""
+                      style={{
+                        background: `var(--scheme-${color}-500)`,
+                        borderColor: `var(--scheme-${color}-700)`,
+                      }}
+                      onClick={() => { handleWidgetStyle(color, WidgetStyleType.brandColor); setCustomBrandColor(null); }}
+                    />
+                  </Flex>
+                ))}
               </Scroller>
               <ColorInput
                 id="brand-color"
@@ -225,135 +214,34 @@ export default function Home() {
                 fillWidth={true}
                 gap="xs"
               >
-                <Flex key="blue1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-blue-500)", borderColor: "var(--scheme-blue-700)" }}
-                    onClick={() => handleWidgetStyle("blue", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="indigo1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-indigo-500)", borderColor: "var(--scheme-indigo-700)" }}
-                    onClick={() => handleWidgetStyle("indigo", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="violet1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-violet-500)", borderColor: "var(--scheme-violet-700)" }}
-                    onClick={() => handleWidgetStyle("violet", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="magenta1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-magenta-500)", borderColor: "var(--scheme-magenta-700)" }}
-                    onClick={() => handleWidgetStyle("magenta", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="pink1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-pink-500)", borderColor: "var(--scheme-pink-700)" }}
-                    onClick={() => handleWidgetStyle("pink", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="red1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-red-500)", borderColor: "var(--scheme-red-700)" }}
-                    onClick={() => handleWidgetStyle("red", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="orange1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-orange-500)", borderColor: "var(--scheme-orange-700)" }}
-                    onClick={() => handleWidgetStyle("orange", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="yellow1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-yellow-500)", borderColor: "var(--scheme-yellow-700)" }}
-                    onClick={() => handleWidgetStyle("yellow", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="moss1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-moss-500)", borderColor: "var(--scheme-moss-700)" }}
-                    onClick={() => handleWidgetStyle("moss", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="green1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-green-500)", borderColor: "var(--scheme-green-700)" }}
-                    onClick={() => handleWidgetStyle("green", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="emerald1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-emerald-500)", borderColor: "var(--scheme-emerald-700)" }}
-                    onClick={() => handleWidgetStyle("emerald", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="aqua1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-aqua-500)", borderColor: "var(--scheme-aqua-700)" }}
-                    onClick={() => handleWidgetStyle("aqua", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
-
-                <Flex key="cyan1" paddingRight="xs">
-                  <IconButton
-                    size="m"
-                    variant="ghost"
-                    icon=""
-                    style={{ background: "var(--scheme-cyan-500)", borderColor: "var(--scheme-cyan-700)" }}
-                    onClick={() => handleWidgetStyle("cyan", WidgetStyleType.accentColor)}
-                  />
-                </Flex>
+                {[
+                  "blue",
+                  "indigo",
+                  "violet",
+                  "magenta",
+                  "pink",
+                  "red",
+                  "orange",
+                  "yellow",
+                  "moss",
+                  "green",
+                  "emerald",
+                  "aqua",
+                  "cyan",
+                ].map((color) => (
+                  <Flex key={`${color}1`} paddingRight="xs">
+                    <IconButton
+                      size="m"
+                      variant="ghost"
+                      icon=""
+                      style={{
+                        background: `var(--scheme-${color}-500)`,
+                        borderColor: `var(--scheme-${color}-700)`,
+                      }}
+                      onClick={() => { handleWidgetStyle(color, WidgetStyleType.accentColor); setCustomAccentColor(null); }}
+                    />
+                  </Flex>
+                ))}
               </Scroller>
               <ColorInput
                 id="accent-color"
@@ -402,6 +290,7 @@ export default function Home() {
   <head>
     <title>Fonki Chat Widget</title>
     <script src="src/public/embed/webchat.js"></script>
+     ${customSchema ? `<style>\n      ${customSchema}\n    </style>\n` : ''}
   </head>
   <body>
     <div id="webchat-container"></div>
@@ -420,7 +309,7 @@ export default function Home() {
       });
     </script>
   </body>
-</html>`,
+</html>`.replace(/^\s*[\r\n]/gm, ''),
                 label: 'HTML',
                 language: 'html',
               },
