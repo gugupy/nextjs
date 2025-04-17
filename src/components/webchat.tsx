@@ -39,7 +39,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
     const [userMessage, setUserMessage] = React.useState<UserMessage | null>(null);
 
     return (
-        <Column horizontal={widgetStyle?.bubblePosition || 'start'} gap="2">
+        <Column horizontal={widgetStyle?.bubblePosition || 'start'} gap="2" maxHeight={45}>
             {isOpen &&
                 <Column flex={1} width={25} background="neutral-alpha-weak" radius="l" border="accent-alpha-weak" overflow="hidden" fill>
                     <Background
@@ -85,20 +85,42 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                     <Line />
 
                     {/* Chat Window */}
-                    <Column fillHeight flex={1} gap="s" overflowY="auto" padding="s" minHeight={30}>
+                    <Column
+                        fillHeight
+                        flex={1}
+                        gap="s"
+                        overflowY="auto"
+                        padding="s"
+                        minHeight={30}
+                        ref={(el) => {
+                            if (el) {
+                                el.scrollTop = el.scrollHeight; // Auto-scroll to bottom
+                            }
+                        }}
+                    >
                         {messages.map((message) => (
                             <Row
                                 key={message.id}
                                 horizontal={message.type === MessageType.Bot ? "start" : "end"}
                                 gap="xs"
                                 vertical="end"
+                                style={{ wordWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}
                             >
                                 {message.type === "bot" && <Avatar size="m" value="FC" />}
-                                <Flex background={message.type === MessageType.User ? 'brand-strong' : 'neutral-weak'} border={message.type === MessageType.Bot ? 'neutral-alpha-medium' : undefined} paddingX="16" paddingY="12" topRadius="l" bottomLeftRadius={message.type === MessageType.User ? "l" : undefined} bottomRightRadius={message.type === MessageType.Bot ? "l" : undefined}>
+                                <Flex
+                                    background={message.type === MessageType.User ? 'brand-strong' : 'neutral-weak'}
+                                    border={message.type === MessageType.Bot ? 'neutral-alpha-medium' : undefined}
+                                    paddingX="16"
+                                    paddingY="12"
+                                    topRadius="l"
+                                    bottomLeftRadius={message.type === MessageType.User ? "l" : undefined}
+                                    bottomRightRadius={message.type === MessageType.Bot ? "l" : undefined}
+                                    style={{ wordWrap: "break-word", wordBreak: "break-word", maxWidth: "80%" }}
+                                >
                                     <Text
                                         onBackground={message.type === MessageType.User ? "neutral-strong" : "neutral-medium"}
                                         variant="label-default-l"
-                                        style={{ fontFamily: widgetStyle.fontFamily }}
+                                        style={{ fontFamily: widgetStyle.fontFamily, wordWrap: "break-word", wordBreak: "break-word" }}
                                     >
                                         {message.text}
                                     </Text>
