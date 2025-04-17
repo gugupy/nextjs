@@ -3,8 +3,8 @@ const baseURL = "demo.once-ui.com";
 // default customization applied to the HTML in the main layout.tsx
 const style = {
   theme: "dark",
-  brand: "custom",
-  accent: "custom",
+  brand: "blue",
+  accent: "blue",
   neutral: "slate",
   border: "rounded",
   solid: "color",
@@ -72,7 +72,7 @@ const schema = {
   type: "Organization",
   name: "Fonki",
   description: meta.description,
-  email: "lorant@once-ui.com",
+  email: "fonki@qmantic.com",
 };
 
 
