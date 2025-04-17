@@ -284,6 +284,7 @@ export default function Home() {
             Copy the code and paste it in your website
           </Heading>
           <CodeBlock
+            codeHeight={35}
             codeInstances={[
               {
                 code: `<!DOCTYPE html>
