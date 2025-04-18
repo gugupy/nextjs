@@ -18,6 +18,7 @@ import {
 } from "@/once-ui/components";
 import { CodeBlock } from "@/once-ui/modules";
 import WebChat, { WidgetStyle, MessageType } from "@/components/webchat";
+import { SpacingToken } from "@/once-ui/types";
 
 enum BubblePosition {
   Start = "start",
@@ -28,7 +29,9 @@ enum WidgetStyleType {
   brandColor = "brandColor",
   accentColor = "accentColor",
   fontFamily = "fontFamily",
-  bubblePosition = BubblePosition.Start
+  bubblePosition = BubblePosition.Start,
+  widgetWidth = "widgetWidth",
+  widgetHeight = "widgetHeight",
 }
 
 
@@ -104,7 +107,9 @@ export default function Home() {
     brandColor: "blue",
     accentColor: "blue",
     fontFamily: "Arial",
-    bubblePosition: BubblePosition.End
+    bubblePosition: BubblePosition.End,
+    widgetWidth: 25,
+    widgetHeight: 25,
   });
 
   const handleWidgetStyle = (value: any, type: WidgetStyleType, isCustom: boolean = false) => {
@@ -138,11 +143,10 @@ export default function Home() {
   }
 
   return (
-    <>
+    <Column horizontal="center" gap="s" fillWidth padding="m">
       {/* Header */}
-      <Row gap="m" horizontal="space-around" paddingY="m">
+      <Row gap="m" horizontal="space-around" className="header">
         <ThemeSwitcher center color="accent-alpha-strong" />
-        <Heading>Fonki Chat Builder</Heading>
         <Button
           variant="secondary"
           weight="default"
@@ -157,20 +161,23 @@ export default function Home() {
         </Button>
       </Row>
 
+      <Heading>Fonki Chat Builder</Heading>
+
       {/* Main Content */}
-      {/* <Column fillWidth paddingY="s" paddingX="s" horizontal="center" flex={1} gap="s"> */}
       <Row gap="xl" mobileDirection="column" horizontal="center">
+
         {/* Widget Configurator */}
-        <Column horizontal="center" gap="xs">
+        <Column gap="s" horizontal="center">
           <Heading as="h3" variant="body-default-l">Configure Chat Widget</Heading>
-          <Column border="neutral-alpha-strong" padding="xs" gap="s" radius="xl" maxWidth={25}>
-            <Column key="brand" gap="xs" fillWidth radius="s">
+
+          <Column border="neutral-alpha-strong" padding="xs" gap="s" radius="s" fillWidth maxWidth={25}>
+            {/* Brand Color */}
+            <Column key="brand" gap="xs" radius="s">
               <Text>Brand</Text>
               <Scroller
                 direction="row"
                 maxHeight={12}
-                fillWidth={true}
-                gap="xs"
+                gap="s"
               >
                 {[
                   "blue",
@@ -206,12 +213,12 @@ export default function Home() {
                 value={widgetStyle.brandColor}
                 onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.brandColor, true)} />
             </Column>
+            {/* Accent Color */}
             <Column key="accent" gap="xs" fillWidth radius="s">
               <Text>Accent</Text>
               <Scroller
                 direction="row"
                 maxHeight={12}
-                fillWidth={true}
                 gap="xs"
               >
                 {[
@@ -248,11 +255,48 @@ export default function Home() {
                 value={widgetStyle.accentColor}
                 onChange={(newColor) => handleWidgetStyle(newColor.target.value, WidgetStyleType.accentColor, true)} />
             </Column>
+
+            {/* Font Family */}
             <Column key="font-family" gap="xs" fillWidth radius="s">
               <Text>Font Family</Text>
               <Input id="font-family" label="Enter the font family" labelAsPlaceholder={true} value={widgetStyle.fontFamily} onChange={(font) => setWidgetStyle({ ...widgetStyle, fontFamily: font.target.value })}></Input>
             </Column>
 
+            {/* Widget Size */}
+            <Row gap="s" horizontal="center" fillWidth>
+              <Column fillWidth gap="xs">
+                <Text>Width</Text>
+                <Input
+                  id="widget-width"
+                  label="Widget Width"
+                  labelAsPlaceholder={true}
+                  value={widgetStyle.widgetWidth}
+                  onChange={(width) => {
+                    const value = isNaN(Number(width.target.value))
+                      ? (width.target.value as SpacingToken)
+                      : Number(width.target.value);
+                    setWidgetStyle({ ...widgetStyle, widgetWidth: value });
+                  }}
+                ></Input>
+              </Column>
+              <Column fillWidth gap="xs">
+                <Text>Height</Text>
+                <Input
+                  id="widget-height"
+                  label="Widget Height"
+                  labelAsPlaceholder={true}
+                  value={widgetStyle.widgetHeight}
+                  onChange={(height) => {
+                    const value = isNaN(Number(height.target.value))
+                      ? (height.target.value as SpacingToken)
+                      : Number(height.target.value);
+                    setWidgetStyle({ ...widgetStyle, widgetHeight: value });
+                  }}
+                ></Input>
+              </Column>
+            </Row>
+
+            {/* Bubble Positions */}
             <Column fillWidth vertical="stretch" gap="xs">
               <Text>Bubble Position</Text>
               <Row fillWidth>
@@ -260,11 +304,12 @@ export default function Home() {
                 <ToggleButton variant="outline" suffixIcon="chevronRight" radius="right" weight="default" onClick={() => setWidgetStyle({ ...widgetStyle, bubblePosition: 'end' })} fillWidth aria-controls="panel-dark" selected={widgetStyle.bubblePosition === BubblePosition.End}>Right</ToggleButton>
               </Row>
             </Column>
+
           </Column>
         </Column>
 
         {/* Widget Preview */}
-        <Column horizontal="center" gap="s" radius="s">
+        <Column horizontal="center" gap="s" maxWidth={"xl"}>
           <Heading as="h3" variant="body-default-l">Preview</Heading>
           <WebChat
             key={`${widgetStyle.brandColor}-${widgetStyle.accentColor}-${widgetStyle.fontFamily}`}
@@ -272,19 +317,22 @@ export default function Home() {
             accentColor={widgetStyle.accentColor}
             fontFamily={widgetStyle.fontFamily}
             bubblePosition={widgetStyle.bubblePosition}
+            widgetWidth={widgetStyle.widgetWidth}
+            widgetHeight={widgetStyle.widgetHeight}
             msgs={messages} />
         </Column>
+      </Row>
 
-        {/* Code snippet */}
-        <Column horizontal="center" data-border="rounded" gap="s" radius="s" >
-          <Heading as="h3" variant="body-default-l">
-            Copy the code and paste it in your website
-          </Heading>
-          <CodeBlock
-            codeHeight={35}
-            codeInstances={[
-              {
-                code: `<!DOCTYPE html>
+      {/* Code snippet */}
+      <Column horizontal="center" data-border="rounded" gap="s" radius="s" fillWidth maxWidth={"s"}>
+        <Heading as="h3" variant="body-default-l">
+          Copy the code and paste it in your website
+        </Heading>
+        <CodeBlock
+          codeHeight={30}
+          codeInstances={[
+            {
+              code: `<!DOCTYPE html>
   <head>
     <title>Fonki Chat Widget</title>
     <script src="src/public/embed/webchat.js"></script>
@@ -300,6 +348,8 @@ export default function Home() {
             accentColor: '${customAccentColor ? 'custom' : widgetStyle.accentColor}',
             fontFamily: '${widgetStyle.fontFamily}',
             bubblePosition: '${widgetStyle.bubblePosition}',
+            widgetWidth: '${widgetStyle.widgetWidth}',
+            widgetHeight: '${widgetStyle.widgetHeight}',
           });
         } else {
           console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
@@ -308,18 +358,16 @@ export default function Home() {
     </script>
   </body>
 </html>`.replace(/^\s*[\r\n]/gm, ''),
-                label: 'HTML',
-                language: 'html',
-              },
-            ]}
-            copyButton={true}
-            compact={false}
-            textSize="xs" />
-        </Column>
+              label: 'HTML',
+              language: 'html',
+            },
+          ]}
+          copyButton={true}
+          compact={false}
+          textSize="xs" />
+      </Column>
 
-      </Row>
-      {/* </Column > */}
-    </>
+    </Column >
 
   );
 }

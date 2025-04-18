@@ -3,6 +3,7 @@
 import React from "react";
 import { Avatar, Background, Column, Flex, Heading, IconButton, Input, Line, Row, Text, Textarea, TiltFx } from "@/once-ui/components";
 import { style } from "@/app/resources/config";
+import { SpacingToken } from "@/once-ui/types";
 
 export interface WidgetStyle {
     brandColor: string;
@@ -11,6 +12,8 @@ export interface WidgetStyle {
 
     // Bubble config
     bubblePosition?: "start" | "end";
+    widgetWidth?: number | SpacingToken;
+    widgetHeight?: number | SpacingToken;
 }
 
 
@@ -39,9 +42,9 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
     const [userMessage, setUserMessage] = React.useState<UserMessage | null>(null);
 
     return (
-        <Column horizontal={widgetStyle?.bubblePosition || 'start'} gap="2" maxHeight={45}>
+        <Column horizontal={widgetStyle?.bubblePosition || 'start'} gap="2" fillHeight>
             {isOpen &&
-                <Column flex={1} width={25} background="neutral-alpha-weak" radius="l" border="accent-alpha-weak" overflow="hidden" fill>
+                <Column flex={1} background="neutral-alpha-weak" radius="l" border="accent-alpha-weak" overflow="hidden" width={widgetStyle?.widgetWidth} fillWidth>
                     <Background
                         position="absolute"
                         mask={{
@@ -91,7 +94,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                         gap="s"
                         overflowY="auto"
                         padding="s"
-                        minHeight={30}
+                        minHeight={widgetStyle?.widgetHeight}
                         ref={(el) => {
                             if (el) {
                                 el.scrollTop = el.scrollHeight; // Auto-scroll to bottom
