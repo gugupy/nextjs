@@ -71,6 +71,20 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                             color: "neutral-alpha-medium",
                             height: "0.25rem",
                         }}
+                        dots={{
+                            display: false,
+                            opacity: 100,
+                            size: "12",
+                            color: "neutral-alpha-medium",
+                        }}
+                        lines={{
+                            display: false,
+                            opacity: 100,
+                            size: "12",
+                            color: "neutral-alpha-medium",
+                            thickness: 1,
+                            angle: 45,
+                        }}
                     />
                     {/* Chat Header */}
                     <Row horizontal="start" padding="m" gap="s" vertical="center" topRadius="s">

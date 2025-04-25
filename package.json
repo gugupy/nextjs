@@ -42,7 +42,7 @@
     "postcss-custom-media": "^10.0.7",
     "postcss-flexbugs-fixes": "^5.0.2",
     "process": "^0.11.10",
-    "sass": "^1.86.3",
+    "sass": "^1.87.0",
     "sass-loader": "^16.0.5",
     "stream-browserify": "^3.0.0",
     "style-loader": "^4.0.0",
@@ -52,5 +52,10 @@
   "overrides": {
     "@types/react": "19.0.1",
     "@types/react-dom": "19.0.2"
-  }
+  },
+  "sideEffects": [
+    "**/*.css",
+    "**/*.scss",
+    "**/*.sass"
+  ]
 }
