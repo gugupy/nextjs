@@ -6,7 +6,7 @@ module.exports = {
     cache: false,
     entry: './src/app/lib/WebchatEmbed.js',
     output: {
-        path: path.resolve(__dirname, 'src/public/embed'),
+        path: path.resolve(__dirname),
         filename: 'webchat.js',
         library: 'renderWebchat',
         libraryTarget: 'umd',

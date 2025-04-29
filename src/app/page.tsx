@@ -379,7 +379,7 @@ export default function Home() {
                 code: `<!DOCTYPE html>
     <head>
     <title>Fonki Chat Widget</title>
-    <script src="src/public/embed/webchat.js"></script>
+    <script src="webchat.js"></script>
     </head>
     <body>
     <div id="webchat-container"></div>
@@ -387,17 +387,17 @@ export default function Home() {
       document.addEventListener('DOMContentLoaded', function() {
       if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
         window.renderWebchat.renderWebchat('webchat-container', {
-        brandColor: '${customBrandColor ? customBrandColor : widgetStyle.brandColor}',
-        accentColor: '${customAccentColor ? customAccentColor : widgetStyle.accentColor}',
-        fontFamily: '${widgetStyle.fontFamily}',
-        bubblePosition: '${widgetStyle.bubblePosition}',
-        widgetWidth: '${widgetStyle.widgetWidth}',
-        widgetHeight: '${widgetStyle.widgetHeight}',
-        position: "fixed",
-        ${widgetStyle.headerBackgroundColor ? `headerBackgroundColor: '${widgetStyle.headerBackgroundColor}',` : ''}
-        ${widgetStyle.headerTaglineColor ? `headerTaglineColor: '${widgetStyle.headerTaglineColor}',` : ''}
-        ${widgetStyle.textColor ? `textColor: '${widgetStyle.textColor}',` : ''}
-        ${widgetStyle.botKey ? `botKey: '${widgetStyle.botKey}',` : ''}
+          brandColor: '${customBrandColor ? customBrandColor : widgetStyle.brandColor}',
+          accentColor: '${customAccentColor ? customAccentColor : widgetStyle.accentColor}',
+          fontFamily: '${widgetStyle.fontFamily}',
+          bubblePosition: '${widgetStyle.bubblePosition}',
+          widgetWidth: '${widgetStyle.widgetWidth}',
+          widgetHeight: '${widgetStyle.widgetHeight}',
+          position: "fixed",
+          ${widgetStyle.headerBackgroundColor ? `headerBackgroundColor: '${widgetStyle.headerBackgroundColor}',` : ''}
+          ${widgetStyle.headerTaglineColor ? `headerTaglineColor: '${widgetStyle.headerTaglineColor}',` : ''}
+          ${widgetStyle.textColor ? `textColor: '${widgetStyle.textColor}',` : ''}
+          ${widgetStyle.botKey ? `botKey: '${widgetStyle.botKey}',` : ''}
         });
       } else {
         console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
