@@ -10,10 +10,8 @@ export interface WidgetStyle {
     fontFamily: string;
     widgetWidth?: number;
     widgetHeight?: number;
-
+    textColor?: string;
     position?: "fixed" | "absolute" | "relative" | "sticky" | "static";
-    botKey?: string;
-
 
     headerText?: string;
     headerTextColor?: string;
@@ -26,7 +24,6 @@ export interface WidgetStyle {
     headerTaglineColor?: string;
     headerTaglineFontSize?: string;
     headerTaglineFontWeight?: string;
-    textColor?: string;
 
     bubbleTextColor?: string;
     bubbleBackgroundColor?: string;
@@ -34,6 +31,10 @@ export interface WidgetStyle {
     bubblePosition?: "start" | "end";
 
     fonkiHost?: string;
+    botKey?: string;
+
+    bottom?: string;
+    right?: string;
 }
 
 
@@ -100,13 +101,13 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
         widgetContainer: {
             display: 'flex',
             flexDirection: 'column' as 'column',
-            bottom: '20px',
-            right: '20px',
+            bottom: widgetStyle.bottom ? widgetStyle.bottom : '20px',
+            right: widgetStyle.right ? widgetStyle.right : '20px',
             width: "100 %",
             maxHeight: `${widgetStyle.widgetHeight}rem`,
             fontFamily: widgetStyle.fontFamily,
             zIndex: 1000,
-            position: widgetStyle.position || 'fixed',
+            position: widgetStyle.position ? widgetStyle.position : 'fixed',
         },
         chatBox: {
             display: 'flex',
@@ -127,6 +128,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
             borderBottom: '1px solid #ccc',
             gap: '10px',
             justifyContent: 'space-between',
+            backgroundColor: widgetStyle.headerBackgroundColor,
         },
         avatar: {
             flexShrink: 0,
@@ -167,7 +169,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
         userMessage: {
             alignSelf: 'flex-end',
             backgroundColor: `${widgetStyle.accentColor}`,
-            color: 'unset',
+            color: widgetStyle.textColor ? widgetStyle.textColor : 'white',
             borderTopRightRadius: '20px',
             borderTopLeftRadius: '20px',
             borderBottomLeftRadius: '20px',
@@ -194,6 +196,10 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
             color: 'white',
             borderRadius: '50%',
             cursor: 'pointer',
+            transition: 'background-color 0.3s ease',
+            ':hover': {
+                backgroundColor: `${widgetStyle.accentColor}`,
+            },
         },
         bubbleBtn: {
             backgroundColor: `${widgetStyle.brandColor}`,
@@ -207,11 +213,16 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
             border: 'none',
             cursor: 'pointer',
             fontSize: '24px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+            boxShadow: '0 10px 20px rgba(33, 29, 29, 0.3)',
+            transition: 'transform 0.3s ease, background-color 0.3s ease',
+            ':hover': {
+                transform: 'scale(0.9)',
+                backgroundColor: `${widgetStyle.accentColor}`,
+            },
         },
         messageAvatar: {
             flexShrink: 0,
-            backgroundColor: widgetStyle.accentColor,
+            backgroundColor: widgetStyle.brandColor,
             color: '#fff',
             borderRadius: '9999px',
             width: '32px',
@@ -223,7 +234,8 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
             fontSize: '14px',
         },
         userAvatar: {
-            backgroundColor: '#5e5e5e',
+            backgroundColor: widgetStyle.accentColor,
+            color: widgetStyle.textColor ? widgetStyle.textColor : 'white',
         },
     };
 
@@ -249,7 +261,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                             <div style={styles.avatar}>FC</div>
                             <div>
                                 <strong>Fonki</strong>
-                                <div style={{ fontSize: '12px', color: '#888' }}>We always available!</div>
+                                <div style={{ fontSize: '12px', color: widgetStyle.headerTaglineColor ? widgetStyle.headerTaglineColor :'#888' }}>We always available!</div>
                             </div>
                         </div>
                         {/* <div>
@@ -277,7 +289,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                     <div style={styles.messagesContainer}>
                         {messages.map((msg) => (
                             <div style={{ display: 'flex', gap: '5px', alignItems: 'end', alignSelf: msg.type === 'bot' ? "flex-start" : "flex-end", justifyContent: msg.type === 'user' ? 'flex-end' : 'unset' }} key={msg.id}>
-                                {msg.type === 'bot' && (
+                                {msg.type === MessageType.Bot && (
                                     <div style={{ ...styles.messageAvatar }}>
                                         FC
                                     </div>
@@ -285,12 +297,12 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                                 <div
                                     style={{
                                         ...styles.message,
-                                        ...(msg.type === 'bot' ? styles.botMessage : styles.userMessage),
+                                        ...(msg.type === MessageType.Bot ? styles.botMessage : styles.userMessage),
                                     }}
                                 >
                                     {msg.text}
                                 </div>
-                                {msg.type === 'user' && (
+                                {msg.type === MessageType.User && (
                                     <div style={{ ...styles.messageAvatar, ...styles.userAvatar }}>
                                         U
                                     </div>

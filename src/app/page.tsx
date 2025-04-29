@@ -10,11 +10,10 @@ import {
   Row,
   ThemeSwitcher,
   Text,
-  Scroller,
-  Flex,
-  IconButton,
   ToggleButton,
-  Button
+  Button,
+  Accordion,
+  SegmentedControl
 } from "@/once-ui/components";
 import { CodeBlock } from "@/once-ui/modules";
 import WebChat, { WidgetStyle, MessageType } from "@/components/webchat";
@@ -28,7 +27,7 @@ enum WidgetStyleType {
   brandColor = "brandColor",
   accentColor = "accentColor",
   fontFamily = "fontFamily",
-  bubblePosition = BubblePosition.Start,
+  bubblePosition = "bubblePosition",
   widgetWidth = "widgetWidth",
   widgetHeight = "widgetHeight",
 }
@@ -37,46 +36,57 @@ enum WidgetStyleType {
 export default function Home() {
   const [customAccentColor, setCustomAccentColor] = useState<string | null>(null);
   const [customBrandColor, setCustomBrandColor] = useState<string | null>(null);
-  const [customSchema, setCustomSchema] = useState<string | null>(null);
+  const [widgetStyle, setWidgetStyle] = useState<WidgetStyle>({
+    brandColor: "blue",
+    accentColor: "blue",
+    fontFamily: "Arial",
+    bubblePosition: BubblePosition.End,
+    widgetWidth: 25,
+    widgetHeight: 37,
+    position: "relative",
+    bottom: "0px",
+    right: "0px",
+  });
+  // const [customSchema, setCustomSchema] = useState<string | null>(null);
 
 
-  React.useEffect(() => {
-    async function updateColors() {
-      try {
-        const response = await fetch('/api/generateColors', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ brandColor: customBrandColor, accentColor: customAccentColor }),
-        });
+  // React.useEffect(() => {
+  //   async function updateColors() {
+  //     try {
+  //       const response = await fetch('/api/generateColors', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({ brandColor: customBrandColor, accentColor: customAccentColor }),
+  //       });
 
-        if (!response.ok) {
-          throw new Error('Failed to update colors');
-        }
+  //       if (!response.ok) {
+  //         throw new Error('Failed to update colors');
+  //       }
 
-        const data = await response.json();
+  //       const data = await response.json();
 
-        if (data.scss) {
-          setCustomSchema(data.scss);
-          const styleElement = document.createElement('style');
-          styleElement.textContent = data.scss;
-          document.head.appendChild(styleElement);
-        } else if (data.error) {
-          console.error('Error applying custom colors:', data.error);
-        }
+  //       if (data.scss) {
+  //         setCustomSchema(data.scss);
+  //         const styleElement = document.createElement('style');
+  //         styleElement.textContent = data.scss;
+  //         document.head.appendChild(styleElement);
+  //       } else if (data.error) {
+  //         console.error('Error applying custom colors:', data.error);
+  //       }
 
-      } catch (error) {
-        console.error('Error updating colors:', error);
-      }
-    }
+  //     } catch (error) {
+  //       console.error('Error updating colors:', error);
+  //     }
+  //   }
 
-    if (customAccentColor || customBrandColor) {
-      updateColors();
-    } else {
-      setCustomSchema(null);
-    }
-  }, [customAccentColor, customBrandColor]);
+  //   if (customAccentColor || customBrandColor) {
+  //     updateColors();
+  //   } else {
+  //     setCustomSchema(null);
+  //   }
+  // }, [customAccentColor, customBrandColor]);
 
   const generateRandomString = (length: number) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -101,15 +111,6 @@ export default function Home() {
       type: MessageType.User,
     },
   ];
-
-  const [widgetStyle, setWidgetStyle] = useState<WidgetStyle>({
-    brandColor: "blue",
-    accentColor: "blue",
-    fontFamily: "Arial",
-    bubblePosition: BubblePosition.End,
-    widgetWidth: 25,
-    widgetHeight: 37,
-  });
 
   const handleWidgetStyle = (value: any, type: WidgetStyleType, isCustom: boolean = false) => {
     if (type === WidgetStyleType.brandColor) {
@@ -144,31 +145,32 @@ export default function Home() {
   return (
     <Column horizontal="center" gap="s" fillWidth padding="m">
       {/* Header */}
-      <Row gap="m" horizontal="space-around" className="header">
-        <ThemeSwitcher center color="accent-alpha-strong" />
-        <Button
-          variant="secondary"
-          weight="default"
-          suffixIcon="close"
-          className="button"
-          size="l"
-          onClick={() => {
-            window.location.href = "/";
-          }}
-        >
-          Exit
-        </Button>
-      </Row>
-
-      <Heading>Fonki Chat Builder</Heading>
+      <Column horizontal="center" gap="s" fillWidth padding="m" zIndex={3}>
+        <Row gap="m" horizontal="space-around" className="header">
+          <ThemeSwitcher center color="accent-alpha-strong" />
+          <Button
+            variant="secondary"
+            weight="default"
+            suffixIcon="close"
+            className="button"
+            size="l"
+            onClick={() => {
+              window.location.href = "/";
+            }}
+          >
+            Exit
+          </Button>
+        </Row>
+        <Heading>Fonki Chat Builder</Heading>
+      </Column>
 
       {/* Main Content */}
-      <Row gap="s" mobileDirection="column" horizontal="start">
+      <Row mobileDirection="column" horizontal="center" gap="xl">
 
         {/* Widget Configurator */}
         <Column gap="s" horizontal="center">
           <Heading as="h3" variant="body-default-l">Configure Chat Widget</Heading>
-          <Column border="neutral-alpha-strong" padding="xs" gap="s" radius="s" fillWidth>
+          <Column border="neutral-alpha-strong" padding="m" gap="s" radius="s" overflowY="auto" maxWidth={25} maxHeight={40}>
             {/* Brand Color */}
             <Column key="brand" gap="xs" radius="s">
               <Text>Brand Color</Text>
@@ -299,12 +301,54 @@ export default function Home() {
               </Row>
             </Column>
 
+            {/* Advanced Configurations */}
+            <Column fillWidth gap="xs">         
+              <Accordion
+                title="Advanced Configurations"
+                open={false}
+                size="s"
+              >
+                <Column gap="xs" horizontal="center" fillWidth>
+                  <Column fillWidth gap="1">
+                    <Text>Header Background Color</Text>
+                    <ColorInput
+                      id="header-background-color"
+                      label="Custom header background color"
+                      value={widgetStyle.headerBackgroundColor || ""}
+                      onChange={(newColor) =>
+                        setWidgetStyle({ ...widgetStyle, headerBackgroundColor: newColor.target.value })
+                      }
+                    />
+                  </Column>
+                  <Column fillWidth gap="1">
+                    <Text>Header TagLine Color</Text>
+                    <ColorInput
+                      id="header-background-color"
+                      label="Custom header tagline color"
+                      value={widgetStyle.headerBackgroundColor || ""}
+                      onChange={(newColor) =>
+                        setWidgetStyle({ ...widgetStyle, headerTaglineColor: newColor.target.value })
+                      }
+                    />
+                  </Column>
+                  <Column fillWidth gap="1">
+                    <Text>User Message Text Color</Text>
+                    <ColorInput
+                      id="user-message-text-color"
+                      label="Custom color for user messages"
+                      value={widgetStyle.textColor || ""}
+                      onChange={(newColor) => setWidgetStyle({ ...widgetStyle, textColor: newColor.target.value })}
+                    />
+                  </Column>
+                </Column>
+              </Accordion>
+            </Column>
           </Column>
         </Column>
 
         {/* Widget Preview */}
-        <Column horizontal="center" gap="s" maxWidth={"xl"}>
-          {/* <Heading as="h3" variant="body-default-l">Preview</Heading> */}
+        <Column gap="s" horizontal="center">
+          <Heading as="h3" variant="body-default-l">Preview</Heading>
           <WebChat
             key={`${widgetStyle.brandColor}-${widgetStyle.accentColor}-${widgetStyle.fontFamily}`}
             brandColor={widgetStyle.brandColor}
@@ -313,11 +357,18 @@ export default function Home() {
             bubblePosition={widgetStyle.bubblePosition}
             widgetWidth={widgetStyle.widgetWidth}
             widgetHeight={widgetStyle.widgetHeight}
+            position={widgetStyle.position}
+            textColor={widgetStyle.textColor}
+            headerBackgroundColor={widgetStyle.headerBackgroundColor}
+            headerTaglineColor={widgetStyle.headerTaglineColor}
+            bottom={widgetStyle.bottom}
+            right={widgetStyle.right}
             msgs={messages} />
         </Column>
+      </Row>
 
-        {/* Code snippet */}
-        <Column horizontal="center" data-border="rounded" gap="s" radius="s" fillWidth maxWidth={"s"}>
+      {/* Code snippet */}
+      <Column horizontal="center" data-border="rounded" gap="s" radius="s" fillWidth maxWidth={"s"}>
           <Heading as="h3" variant="body-default-l">
             Copy the code and paste it in your website
           </Heading>
@@ -342,7 +393,10 @@ export default function Home() {
         bubblePosition: '${widgetStyle.bubblePosition}',
         widgetWidth: '${widgetStyle.widgetWidth}',
         widgetHeight: '${widgetStyle.widgetHeight}',
-        position: "fixed"
+        position: "fixed",
+        ${widgetStyle.headerBackgroundColor ? `headerBackgroundColor: '${widgetStyle.headerBackgroundColor}',` : ''}
+        ${widgetStyle.textColor ? `textColor: '${widgetStyle.textColor}',` : ''}
+        ${widgetStyle.botKey ? `botKey: '${widgetStyle.botKey}',` : ''}
         });
       } else {
         console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
@@ -359,9 +413,6 @@ export default function Home() {
             compact={false}
             textSize="xs" />
         </Column>
-      </Row>
-
-
     </Column >
 
   );
