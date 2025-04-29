@@ -58,12 +58,13 @@ export interface BotMessage extends Message {
 }
 
 
-const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = ({ msgs, ...widgetStyle }) => {
+const WebChat: React.FC<WidgetStyle & { msgs?: (UserMessage | BotMessage)[] }> = ({ msgs = [], fonkiHost = '', botKey = '', ...widgetStyle }) => {
     const [isOpen, setIsOpen] = useState(true);
     const [messages, setMessages] = useState(msgs);
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [callId, setCallId] = useState('');
+    const [startTyping, setStartTyping] = useState(false);
     // const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
@@ -74,13 +75,13 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
     }, []);
 
     const chatwithBot = async (message: string = '') => {
-        const response = await fetch(`${widgetStyle.fonkiHost || 'http://localhost:5000'}/api/predict`, {
+        const response = await fetch(`${fonkiHost || 'http://localhost:5000'}/api/predict`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ bot_id: widgetStyle.botKey, message: message, call_id: callId }),
+            body: JSON.stringify({ bot_id: botKey, message: message, call_id: callId }),
         });
         if (!response.ok) {
             console.error('Error fetching data:', response.statusText);
@@ -94,8 +95,23 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                 ...prevMessages,
                 { id: Date.now().toString(), text: data.message, timestamp: new Date(), type: MessageType.Bot },
             ]);
+            setStartTyping(false);
+            // setConversationEnd(data.end_conv);
         }
     };
+
+    useEffect(() => {
+        let isMounted = true;
+        const initializeChat = async () => {
+            if (isMounted) {
+                await chatwithBot();
+            }
+        };
+        initializeChat();
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const styles = {
         widgetContainer: {
@@ -126,9 +142,9 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
             alignItems: 'center',
             padding: '12px',
             borderBottom: '1px solid #ccc',
-            gap: '10px',
+            gap: '20px',
             justifyContent: 'space-between',
-            height: '90px',
+            height: '75px',
             backgroundColor: widgetStyle.headerBackgroundColor,
         },
         avatar: {
@@ -318,6 +334,68 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                             </div>
                         ))}
                         <div ref={messagesEndRef} />
+                        {startTyping && (
+                            <><div style={{ marginTop: 'auto' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <div style={{ ...styles.messageAvatar }}>FC</div>
+                                    <div
+                                        style={{
+                                            ...styles.message,
+                                            ...styles.botMessage,
+                                            fontStyle: 'italic',
+                                            color: '#888',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                        }}
+                                    >
+                                        <span style={{ display: 'flex', gap: '2px' }}>
+                                            <span
+                                                style={{
+                                                    width: '4px',
+                                                    height: '4px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: '#888',
+                                                    animation: 'dot-flash 1.5s infinite',
+                                                    animationDelay: '0s',
+                                                }}
+                                            ></span>
+                                            <span
+                                                style={{
+                                                    width: '4px',
+                                                    height: '4px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: '#888',
+                                                    animation: 'dot-flash 1.5s infinite',
+                                                    animationDelay: '0.3s',
+                                                }}
+                                            ></span>
+                                            <span
+                                                style={{
+                                                    width: '4px',
+                                                    height: '4px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: '#888',
+                                                    animation: 'dot-flash 1.5s infinite',
+                                                    animationDelay: '0.6s',
+                                                }}
+                                            ></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div><style>
+                                    {`
+                                @keyframes dot-flash {
+                                    0%, 80%, 100% {
+                                        opacity: 0;
+                                    }
+                                    40% {
+                                        opacity: 1;
+                                    }
+                                }
+                            `}
+                                </style></>
+                        )} 
                     </div>
 
                     {/* Footer */}
@@ -327,9 +405,9 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                             placeholder="Type your message..."
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { sendMessage(); setStartTyping(true); } }}
                         />
-                        <button style={{ ...styles.sendBtn }} onClick={sendMessage}>
+                        <button style={{ ...styles.sendBtn }} onClick={() => {sendMessage(); setStartTyping(true); }}>
                             <BsSendFill />
                         </button>
                     </div>

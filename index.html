@@ -1,7 +1,7 @@
 <!DOCTYPE html>
   <head>
     <title>Fonki Chat Widget</title>
-    <script src="src/public/embed/webchat.js"></script>
+    <script src="https://fonkichat-ffejbcdde6b8decb.z01.azurefd.net/webchat/webchat.js"></script>
   </head>
   <body style="background-color: azure;">
     <div id="webchat-container" style="position: fixed;"></div>
@@ -17,6 +17,8 @@
             widgetWidth: '25',
             widgetHeight: '40',
             position: 'fixed',
+            botKey: 1,
+            fonkiHost: 'https://fonki-stage.azurewebsites.net',
           });
         } else {
           console.error('renderWebchat or renderWebchat.renderWebchat is undefined');

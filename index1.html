@@ -1,7 +1,7 @@
 <!DOCTYPE html>
   <head>
     <title>Fonki Chat Widget</title>
-    <script src="src/public/embed/webchat.js"></script>
+    <script src="webchat.js"></script>
   </head>
   <body style="background-color: azure;">
     <div id="webchat-container" style="position: fixed;"></div>
@@ -9,7 +9,6 @@
       document.addEventListener('DOMContentLoaded', function() {
         if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
           window.renderWebchat.renderWebchat('webchat-container', {
-            msgs: [],
             brandColor: 'blue',
             accentColor: 'blue',
             fontFamily: 'Arial',
@@ -17,7 +16,7 @@
             widgetWidth: '25',
             widgetHeight: '40',
             position: 'fixed',
-            botKey: 82,
+            botKey: 1,
             fonkiHost: 'https://fonki-stage.azurewebsites.net',
           });
         } else {
