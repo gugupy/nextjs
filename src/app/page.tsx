@@ -18,7 +18,6 @@ import {
 } from "@/once-ui/components";
 import { CodeBlock } from "@/once-ui/modules";
 import WebChat, { WidgetStyle, MessageType } from "@/components/webchat";
-import { SpacingToken } from "@/once-ui/types";
 
 enum BubblePosition {
   Start = "start",
@@ -109,7 +108,7 @@ export default function Home() {
     fontFamily: "Arial",
     bubblePosition: BubblePosition.End,
     widgetWidth: 25,
-    widgetHeight: 25,
+    widgetHeight: 37,
   });
 
   const handleWidgetStyle = (value: any, type: WidgetStyleType, isCustom: boolean = false) => {
@@ -164,17 +163,16 @@ export default function Home() {
       <Heading>Fonki Chat Builder</Heading>
 
       {/* Main Content */}
-      <Row gap="xl" mobileDirection="column" horizontal="center">
+      <Row gap="s" mobileDirection="column" horizontal="start">
 
         {/* Widget Configurator */}
         <Column gap="s" horizontal="center">
           <Heading as="h3" variant="body-default-l">Configure Chat Widget</Heading>
-
-          <Column border="neutral-alpha-strong" padding="xs" gap="s" radius="s" fillWidth maxWidth={25}>
+          <Column border="neutral-alpha-strong" padding="xs" gap="s" radius="s" fillWidth>
             {/* Brand Color */}
             <Column key="brand" gap="xs" radius="s">
-              <Text>Brand</Text>
-              <Scroller
+              <Text>Brand Color</Text>
+              {/* <Scroller
                 direction="row"
                 maxHeight={12}
                 gap="s"
@@ -206,7 +204,7 @@ export default function Home() {
                       onClick={() => { handleWidgetStyle(color, WidgetStyleType.brandColor); setCustomBrandColor(null); }} />
                   </Flex>
                 ))}
-              </Scroller>
+              </Scroller> */}
               <ColorInput
                 id="brand-color"
                 label="Custom brand color"
@@ -216,7 +214,7 @@ export default function Home() {
             {/* Accent Color */}
             <Column key="accent" gap="xs" fillWidth radius="s">
               <Text>Accent</Text>
-              <Scroller
+              {/* <Scroller
                 direction="row"
                 maxHeight={12}
                 gap="xs"
@@ -248,7 +246,7 @@ export default function Home() {
                       onClick={() => { handleWidgetStyle(color, WidgetStyleType.accentColor); setCustomAccentColor(null); }} />
                   </Flex>
                 ))}
-              </Scroller>
+              </Scroller> */}
               <ColorInput
                 id="accent-color"
                 label="Custom accent color"
@@ -272,9 +270,7 @@ export default function Home() {
                   labelAsPlaceholder={true}
                   value={widgetStyle.widgetWidth}
                   onChange={(width) => {
-                    const value = isNaN(Number(width.target.value))
-                      ? (width.target.value as SpacingToken)
-                      : Number(width.target.value);
+                    const value = Number(width.target.value);
                     setWidgetStyle({ ...widgetStyle, widgetWidth: value });
                   }}
                 ></Input>
@@ -287,9 +283,7 @@ export default function Home() {
                   labelAsPlaceholder={true}
                   value={widgetStyle.widgetHeight}
                   onChange={(height) => {
-                    const value = isNaN(Number(height.target.value))
-                      ? (height.target.value as SpacingToken)
-                      : Number(height.target.value);
+                    const value = Number(height.target.value);
                     setWidgetStyle({ ...widgetStyle, widgetHeight: value });
                   }}
                 ></Input>
@@ -310,7 +304,7 @@ export default function Home() {
 
         {/* Widget Preview */}
         <Column horizontal="center" gap="s" maxWidth={"xl"}>
-          <Heading as="h3" variant="body-default-l">Preview</Heading>
+          {/* <Heading as="h3" variant="body-default-l">Preview</Heading> */}
           <WebChat
             key={`${widgetStyle.brandColor}-${widgetStyle.accentColor}-${widgetStyle.fontFamily}`}
             brandColor={widgetStyle.brandColor}
@@ -321,51 +315,52 @@ export default function Home() {
             widgetHeight={widgetStyle.widgetHeight}
             msgs={messages} />
         </Column>
-      </Row>
 
-      {/* Code snippet */}
-      <Column horizontal="center" data-border="rounded" gap="s" radius="s" fillWidth maxWidth={"s"}>
-        <Heading as="h3" variant="body-default-l">
-          Copy the code and paste it in your website
-        </Heading>
-        <CodeBlock
-          codeHeight={30}
-          codeInstances={[
-            {
-              code: `<!DOCTYPE html>
-  <head>
+        {/* Code snippet */}
+        <Column horizontal="center" data-border="rounded" gap="s" radius="s" fillWidth maxWidth={"s"}>
+          <Heading as="h3" variant="body-default-l">
+            Copy the code and paste it in your website
+          </Heading>
+          <CodeBlock
+            codeHeight={30}
+            codeInstances={[
+              {
+                code: `<!DOCTYPE html>
+    <head>
     <title>Fonki Chat Widget</title>
     <script src="src/public/embed/webchat.js"></script>
-     ${customSchema ? `<style>\n      ${customSchema}\n    </style>\n` : ''}
-  </head>
-  <body>
+    </head>
+    <body>
     <div id="webchat-container"></div>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
-          window.renderWebchat.renderWebchat('webchat-container', {
-            brandColor: '${customBrandColor ? 'custom' : widgetStyle.brandColor}',
-            accentColor: '${customAccentColor ? 'custom' : widgetStyle.accentColor}',
-            fontFamily: '${widgetStyle.fontFamily}',
-            bubblePosition: '${widgetStyle.bubblePosition}',
-            widgetWidth: '${widgetStyle.widgetWidth}',
-            widgetHeight: '${widgetStyle.widgetHeight}',
-          });
-        } else {
-          console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
-        }
+      if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
+        window.renderWebchat.renderWebchat('webchat-container', {
+        brandColor: '${customBrandColor ? customBrandColor : widgetStyle.brandColor}',
+        accentColor: '${customAccentColor ? customAccentColor : widgetStyle.accentColor}',
+        fontFamily: '${widgetStyle.fontFamily}',
+        bubblePosition: '${widgetStyle.bubblePosition}',
+        widgetWidth: '${widgetStyle.widgetWidth}',
+        widgetHeight: '${widgetStyle.widgetHeight}',
+        position: "fixed"
+        });
+      } else {
+        console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
+      }
       });
     </script>
-  </body>
-</html>`.replace(/^\s*[\r\n]/gm, ''),
-              label: 'HTML',
-              language: 'html',
-            },
-          ]}
-          copyButton={true}
-          compact={false}
-          textSize="xs" />
-      </Column>
+    </body>
+  </html>`.replace(/^\s*[\r\n]/gm, ''),
+                label: 'HTML',
+                language: 'html',
+              },
+            ]}
+            copyButton={true}
+            compact={false}
+            textSize="xs" />
+        </Column>
+      </Row>
+
 
     </Column >
 

@@ -17,6 +17,7 @@ module.exports = {
             {
                 test: /\.(js|jsx)$/,
                 include: path.resolve(__dirname, 'src/'),
+                exclude: path.resolve(__dirname, 'src/once-ui'),
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -28,6 +29,7 @@ module.exports = {
             {
                 test: /\.(ts|tsx)$/,
                 include: path.resolve(__dirname, 'src/'),
+                exclude: path.resolve(__dirname, 'src/once-ui'),
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -39,28 +41,28 @@ module.exports = {
                     },
                 },
             },
-            {
-                test: /\.module\.scss$/,
-                include: path.resolve(__dirname, 'src/once-ui'),
-                use: [
-                    'style-loader',
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            modules: {
-                                localIdentName: '[local]_[hash:base64:5]', // Optional, but can help in debugging
-                                exportLocalsConvention: 'camelCase', // Optional, but can be useful
-                            },
-                        },
-                    },
-                    'sass-loader',
-                ],
-            },
-            {
-                test: /\.scss$/,
-                exclude: /\.module\.scss$/,
-                use: ['style-loader', 'css-loader', 'sass-loader'],
-            },
+            // {
+            //     test: /\.module\.scss$/,
+            //     include: path.resolve(__dirname, 'src/once-ui'),
+            //     use: [
+            //         'style-loader',
+            //         {
+            //             loader: 'css-loader',
+            //             options: {
+            //                 modules: {
+            //                     localIdentName: '[local]_[hash:base64:5]', // Optional, but can help in debugging
+            //                     exportLocalsConvention: 'camelCase', // Optional, but can be useful
+            //                 },
+            //             },
+            //         },
+            //         'sass-loader',
+            //     ],
+            // },
+            // {
+            //     test: /\.scss$/,
+            //     exclude: /\.module\.scss$/,
+            //     use: ['style-loader', 'css-loader', 'sass-loader'],
+            // },
         ],
     },
     resolve: {
@@ -81,6 +83,6 @@ module.exports = {
         }),
     ],
     optimization: {
-        minimize: false,
+        minimize: true,
     },
 };

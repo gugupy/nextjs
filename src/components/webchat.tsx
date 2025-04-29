@@ -1,19 +1,39 @@
 'use client';
 
-import React from "react";
-import { Avatar, Background, Column, Flex, Heading, IconButton, Input, Line, Row, Text, Textarea, TiltFx } from "@/once-ui/components";
-import { style } from "@/app/resources/config";
-import { SpacingToken } from "@/once-ui/types";
+import React, { useState, useRef, useEffect } from 'react';
+import { BsSendFill } from "react-icons/bs";
+import { PiChatsCircle } from "react-icons/pi";
 
 export interface WidgetStyle {
     brandColor: string;
     accentColor: string;
     fontFamily: string;
+    widgetWidth?: number;
+    widgetHeight?: number;
 
-    // Bubble config
+    position?: "fixed" | "absolute" | "relative" | "sticky" | "static";
+    botKey?: string;
+
+
+    headerText?: string;
+    headerTextColor?: string;
+    headerBackgroundColor?: string;
+    headerBorderColor?: string;
+    headerFontSize?: string;
+    headerFontWeight?: string;
+
+    headerTagline?: string;
+    headerTaglineColor?: string;
+    headerTaglineFontSize?: string;
+    headerTaglineFontWeight?: string;
+    textColor?: string;
+
+    bubbleTextColor?: string;
+    bubbleBackgroundColor?: string;
+    bubbleBorderColor?: string;
     bubblePosition?: "start" | "end";
-    widgetWidth?: number | SpacingToken;
-    widgetHeight?: number | SpacingToken;
+
+    fonkiHost?: string;
 }
 
 
@@ -36,160 +56,272 @@ export interface BotMessage extends Message {
     type: MessageType.Bot;
 }
 
+
 const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = ({ msgs, ...widgetStyle }) => {
-    const [isOpen, setIsOpen] = React.useState(true);
-    const [messages, setMessages] = React.useState<(UserMessage | BotMessage)[]>(msgs);
-    const [userMessage, setUserMessage] = React.useState<UserMessage | null>(null);
+    const [isOpen, setIsOpen] = useState(true);
+    const [messages, setMessages] = useState(msgs);
+    const [input, setInput] = useState('');
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [callId, setCallId] = useState('');
+    // const [isConnected, setIsConnected] = useState(false);
+
+    useEffect(() => {
+        const storedMessages = localStorage.getItem('messages');
+        if (storedMessages) {
+            setMessages([...messages, ...JSON.parse(storedMessages)]);
+        }
+    }, []);
+
+    const chatwithBot = async (message: string = '') => {
+        const response = await fetch(`${widgetStyle.fonkiHost || 'http://localhost:5000'}/api/predict`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ bot_id: widgetStyle.botKey, message: message, call_id: callId }),
+        });
+        if (!response.ok) {
+            console.error('Error fetching data:', response.statusText);
+            return;
+        }
+        const data = await response.json();
+        if (data && data.message) {
+            // setIsConnected(true);
+            setCallId(data.call_id);
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                { id: Date.now().toString(), text: data.message, timestamp: new Date(), type: MessageType.Bot },
+            ]);
+        }
+    };
+
+    const styles = {
+        widgetContainer: {
+            display: 'flex',
+            flexDirection: 'column' as 'column',
+            bottom: '20px',
+            right: '20px',
+            width: "100 %",
+            maxHeight: `${widgetStyle.widgetHeight}rem`,
+            fontFamily: widgetStyle.fontFamily,
+            zIndex: 1000,
+            position: widgetStyle.position || 'fixed',
+        },
+        chatBox: {
+            display: 'flex',
+            flexDirection: 'column' as 'column',
+            borderRadius: '20px',
+            border: '1px solid #ccc',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            overflow: 'hidden',
+            bottom: '20px',
+            right: '20px',
+            width: `${widgetStyle.widgetWidth}rem`,
+            height: `${widgetStyle.widgetHeight}rem`,
+        },
+        header: {
+            display: 'flex',
+            alignItems: 'center',
+            padding: '12px',
+            borderBottom: '1px solid #ccc',
+            gap: '10px',
+            justifyContent: 'space-between',
+        },
+        avatar: {
+            flexShrink: 0,
+            borderRadius: '50%',
+            borderColor: 'gray',
+            borderType: 'solid',
+            borderWidth: '1px',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            backgroundColor: widgetStyle.brandColor,
+            color: '#fff',
+        },
+        messagesContainer: {
+            flex: 1,
+            padding: '10px',
+            overflowY: 'auto' as React.CSSProperties['overflowY'],
+            display: 'flex',
+            flexDirection: 'column' as 'column',
+            gap: '10px',
+        },
+        message: {
+            padding: '10px 14px',
+            maxWidth: '100%',
+            wordBreak: 'break-word' as React.CSSProperties['wordBreak'],
+        },
+        botMessage: {
+            alignSelf: 'flex-start',
+            border: '1px solid #ddd',
+            borderTopLeftRadius: '20px',
+            borderTopRightRadius: '20px',
+            borderBottomRightRadius: '20px',
+        },
+        userMessage: {
+            alignSelf: 'flex-end',
+            backgroundColor: `${widgetStyle.accentColor}`,
+            color: 'unset',
+            borderTopRightRadius: '20px',
+            borderTopLeftRadius: '20px',
+            borderBottomLeftRadius: '20px',
+        },
+        footer: {
+            display: 'flex',
+            borderTop: '1px solid #ccc',
+            padding: '8px',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
+        input: {
+            flex: 1,
+            padding: '12px 8px',
+            borderRadius: '20px',
+            marginRight: '8px',
+            border: '1px solid #ccc',
+            backgroundColor: 'unset',
+            color: 'unset',
+        },
+        sendBtn: {
+            border: 'none',
+            backgroundColor: `${widgetStyle.brandColor}`,
+            color: 'white',
+            borderRadius: '50%',
+            cursor: 'pointer',
+        },
+        bubbleBtn: {
+            backgroundColor: `${widgetStyle.brandColor}`,
+            color: 'white',
+            borderRadius: '50%',
+            width: '56px',
+            height: '56px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '24px',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        },
+        messageAvatar: {
+            flexShrink: 0,
+            backgroundColor: widgetStyle.accentColor,
+            color: '#fff',
+            borderRadius: '9999px',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            fontWeight: 'bold',
+            fontSize: '14px',
+        },
+        userAvatar: {
+            backgroundColor: '#5e5e5e',
+        },
+    };
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    const sendMessage = () => {
+        if (!input.trim()) return;
+        setMessages([...messages, { id: Date.now().toString(), text: input, timestamp: new Date(), type: MessageType.User }]);
+        chatwithBot(input);
+        setInput('');
+        localStorage.setItem('messages', JSON.stringify([...messages, { id: Date.now().toString(), text: input, timestamp: new Date(), type: MessageType.User }]));
+    };
 
     return (
-        <Column horizontal={widgetStyle?.bubblePosition || 'start'} gap="2" fillHeight>
-            {isOpen &&
-                <Column flex={1} background="neutral-alpha-weak" radius="l" border="accent-alpha-weak" overflow="hidden" width={widgetStyle?.widgetWidth} fillWidth>
-                    <Background
-                        position="absolute"
-                        mask={{
-                            x: 50,
-                            y: 100,
-                            radius: 50,
-                            cursor: false
-                        }}
-                        gradient={{
-                            display: true,
-                            x: 50,
-                            y: 100,
-                            width: 200,
-                            height: 100,
-                            tilt: -40,
-                            opacity: 100,
-                            colorStart: "accent-background-strong",
-                            colorEnd: "static-transparent",
-                        }}
-                        grid={{
-                            display: false,
-                            opacity: 100,
-                            width: "0.25rem",
-                            color: "neutral-alpha-medium",
-                            height: "0.25rem",
-                        }}
-                        dots={{
-                            display: false,
-                            opacity: 100,
-                            size: "12",
-                            color: "neutral-alpha-medium",
-                        }}
-                        lines={{
-                            display: false,
-                            opacity: 100,
-                            size: "12",
-                            color: "neutral-alpha-medium",
-                            thickness: 1,
-                            angle: 45,
-                        }}
-                    />
-                    {/* Chat Header */}
-                    <Row horizontal="start" padding="m" gap="s" vertical="center" topRadius="s">
-                        <Avatar
-                            size="l"
-                            value="FC"
-                            loading={false}
-                            empty={false}
-                        />
-                        <Column >
-                            <Heading as="h3">Fonki</Heading>
-                            <Text variant="label-default-xs">We always available!</Text>
-                        </Column>
-                    </Row>
-                    <Line />
-
-                    {/* Chat Window */}
-                    <Column
-                        fillHeight
-                        flex={1}
-                        gap="s"
-                        overflowY="auto"
-                        padding="s"
-                        minHeight={widgetStyle?.widgetHeight}
-                        ref={(el) => {
-                            if (el) {
-                                el.scrollTop = el.scrollHeight; // Auto-scroll to bottom
-                            }
-                        }}
-                    >
-                        {messages.map((message) => (
-                            <Row
-                                key={message.id}
-                                horizontal={message.type === MessageType.Bot ? "start" : "end"}
-                                gap="xs"
-                                vertical="end"
-                                style={{ wordWrap: "break-word", wordBreak: "break-word", maxWidth: "100%" }}
+        <div style={styles.widgetContainer}>
+            {isOpen && (
+                <div style={styles.chatBox}>
+                    {/* Header */}
+                    <div style={styles.header}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <div style={styles.avatar}>FC</div>
+                            <div>
+                                <strong>Fonki</strong>
+                                <div style={{ fontSize: '12px', color: '#888' }}>We always available!</div>
+                            </div>
+                        </div>
+                        {/* <div>
+                            {!isConnected && <button
+                                onClick={() => { chatwithBot(); }}
+                                style={{
+                                    marginLeft: 'auto',
+                                    padding: '8px 12px',
+                                    backgroundColor: widgetStyle.brandColor,
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold',
+                                }}
                             >
-                                {message.type === "bot" && <Avatar size="m" value="FC" />}
-                                <Flex
-                                    background={message.type === MessageType.User ? 'brand-strong' : 'neutral-weak'}
-                                    border={message.type === MessageType.Bot ? 'neutral-alpha-medium' : undefined}
-                                    paddingX="16"
-                                    paddingY="12"
-                                    topRadius="l"
-                                    bottomLeftRadius={message.type === MessageType.User ? "l" : undefined}
-                                    bottomRightRadius={message.type === MessageType.Bot ? "l" : undefined}
-                                    style={{ wordWrap: "break-word", wordBreak: "break-word", maxWidth: "80%" }}
-                                >
-                                    <Text
-                                        onBackground={message.type === MessageType.User ? "neutral-strong" : "neutral-medium"}
-                                        variant="label-default-l"
-                                        style={{ fontFamily: widgetStyle.fontFamily, wordWrap: "break-word", wordBreak: "break-word" }}
-                                    >
-                                        {message.text}
-                                    </Text>
-                                </Flex>
-                                {message.type === "user" && <Avatar size="m" value="U" />}
-                            </Row>
-                        ))}
-                    </Column>
+                                Connect to Bot
+                            </button>}
 
-                    {/* Chat Footer */}
-                    {/* <Row horizontal="center" vertical="center" gap="xs" padding="xs" background="neutral-alpha-medium" bottomRadius="s"> */}
-                    <Flex horizontal="center" vertical="center" padding="xs" gap="xs" data-theme={style.accent}>
-                        <Input
-                            id="message-input"
-                            label="Type your message..."
-                            value={userMessage?.text || ""}
-                            labelAsPlaceholder={true}
-                            onChange={(e) => {
-                                setUserMessage({
-                                    id: Math.random().toString(36).substr(2, 9),
-                                    text: e.target.value,
-                                    type: MessageType.User,
-                                    timestamp: new Date(),
-                                });
-                            }}
-                            height="s"
+                        </div> */}
+                    </div>
+
+                    {/* Messages */}
+                    <div style={styles.messagesContainer}>
+                        {messages.map((msg) => (
+                            <div style={{ display: 'flex', gap: '5px', alignItems: 'end', alignSelf: msg.type === 'bot' ? "flex-start" : "flex-end", justifyContent: msg.type === 'user' ? 'flex-end' : 'unset' }} key={msg.id}>
+                                {msg.type === 'bot' && (
+                                    <div style={{ ...styles.messageAvatar }}>
+                                        FC
+                                    </div>
+                                )}
+                                <div
+                                    style={{
+                                        ...styles.message,
+                                        ...(msg.type === 'bot' ? styles.botMessage : styles.userMessage),
+                                    }}
+                                >
+                                    {msg.text}
+                                </div>
+                                {msg.type === 'user' && (
+                                    <div style={{ ...styles.messageAvatar, ...styles.userAvatar }}>
+                                        U
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    {/* Footer */}
+                    <div style={styles.footer}>
+                        <input
+                            style={styles.input}
+                            placeholder="Type your message..."
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                         />
-                        <IconButton
-                            icon="send"
-                            tooltip="Send"
-                            tooltipPosition="top"
-                            variant="secondary"
-                            size="l"
-                            onClick={() => {
-                                if (userMessage) {
-                                    setMessages([...messages, userMessage]);
-                                    setUserMessage(null); // Clear the input after sending
-                                }
-                            }}
-                        />
-                    </Flex>
-                </Column >
+                        <button style={{ ...styles.sendBtn, borderRadius: '50%', width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={sendMessage}>
+                            <BsSendFill />
+                        </button>
+                    </div>
+                </div>
+            )
             }
-            <Column vertical="end" transition="micro-long" gap="xs">
-                <TiltFx
-                    border="brand-alpha-weak"
-                    radius="l"
-                >
-                    <IconButton icon="chatBubble" size="l" variant="secondary" onClick={() => { setIsOpen(!isOpen) }} />
-                </TiltFx>
-            </Column>
-        </Column >
+
+            {/* Chat bubble toggle */}
+            <div style={{ marginTop: '8px', display: 'flex', justifyContent: widgetStyle.bubblePosition === 'end' ? 'flex-end' : 'flex-start' }}>
+                <button style={styles.bubbleBtn} onClick={() => setIsOpen(!isOpen)}><PiChatsCircle style={{ fontSize: "40px" }} /></button>
+            </div>
+        </div >
     );
 };
 
