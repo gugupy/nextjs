@@ -325,7 +325,7 @@ export default function Home() {
                     <ColorInput
                       id="header-background-color"
                       label="Custom header tagline color"
-                      value={widgetStyle.headerBackgroundColor || ""}
+                      value={widgetStyle.headerTaglineColor || ""}
                       onChange={(newColor) =>
                         setWidgetStyle({ ...widgetStyle, headerTaglineColor: newColor.target.value })
                       }
@@ -395,6 +395,7 @@ export default function Home() {
         widgetHeight: '${widgetStyle.widgetHeight}',
         position: "fixed",
         ${widgetStyle.headerBackgroundColor ? `headerBackgroundColor: '${widgetStyle.headerBackgroundColor}',` : ''}
+        ${widgetStyle.headerTaglineColor ? `headerTaglineColor: '${widgetStyle.headerTaglineColor}',` : ''}
         ${widgetStyle.textColor ? `textColor: '${widgetStyle.textColor}',` : ''}
         ${widgetStyle.botKey ? `botKey: '${widgetStyle.botKey}',` : ''}
         });
