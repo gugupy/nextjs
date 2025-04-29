@@ -128,6 +128,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
             borderBottom: '1px solid #ccc',
             gap: '10px',
             justifyContent: 'space-between',
+            height: '90px',
             backgroundColor: widgetStyle.headerBackgroundColor,
         },
         avatar: {
@@ -176,7 +177,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
         },
         footer: {
             display: 'flex',
-            borderTop: '1px solid #ccc',
+            // borderTop: '1px solid #ccc',
             padding: '8px',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -185,10 +186,11 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
             flex: 1,
             padding: '12px 8px',
             borderRadius: '20px',
-            marginRight: '8px',
+            // marginRight: '8px',
             border: '1px solid #ccc',
             backgroundColor: 'unset',
             color: 'unset',
+            width: '100%',
         },
         sendBtn: {
             border: 'none',
@@ -197,9 +199,15 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
             borderRadius: '50%',
             cursor: 'pointer',
             transition: 'background-color 0.3s ease',
-            ':hover': {
-                backgroundColor: `${widgetStyle.accentColor}`,
-            },
+            zIndex: 1,
+            right: "12px",
+            bottom: "76px",
+            width: '35px', 
+            height: '35px', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            position: 'absolute' as 'absolute',
+            display: 'flex'
         },
         bubbleBtn: {
             backgroundColor: `${widgetStyle.brandColor}`,
@@ -321,7 +329,7 @@ const WebChat: React.FC<WidgetStyle & { msgs: (UserMessage | BotMessage)[] }> = 
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                         />
-                        <button style={{ ...styles.sendBtn, borderRadius: '50%', width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={sendMessage}>
+                        <button style={{ ...styles.sendBtn }} onClick={sendMessage}>
                             <BsSendFill />
                         </button>
                     </div>
