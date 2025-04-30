@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { BsSendFill } from "react-icons/bs";
+import { RiRefreshFill } from "react-icons/ri";
 import { PiChatsCircle } from "react-icons/pi";
 
 export interface WidgetStyle {
@@ -12,6 +13,8 @@ export interface WidgetStyle {
     widgetHeight?: number;
     textColor?: string;
     position?: "fixed" | "absolute" | "relative" | "sticky" | "static";
+
+    backgroundColor?: string;
 
     headerText?: string;
     headerTextColor?: string;
@@ -31,7 +34,7 @@ export interface WidgetStyle {
     bubblePosition?: "start" | "end";
 
     fonkiHost?: string;
-    botKey?: string;
+    botKey?: string | number;
 
     bottom?: string;
     right?: string;
@@ -42,6 +45,7 @@ interface Message {
     id: string;
     text: string;
     timestamp: Date;
+    type: MessageType;
 }
 
 export enum MessageType {
@@ -65,7 +69,7 @@ const WebChat: React.FC<WidgetStyle & { msgs?: (UserMessage | BotMessage)[] }> =
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [callId, setCallId] = useState('');
     const [startTyping, setStartTyping] = useState(false);
-    // const [isConnected, setIsConnected] = useState(false);
+    const [conversationEnd, setConversationEnd] = useState(true);
 
     useEffect(() => {
         const storedMessages = localStorage.getItem('messages');
@@ -96,7 +100,14 @@ const WebChat: React.FC<WidgetStyle & { msgs?: (UserMessage | BotMessage)[] }> =
                 { id: Date.now().toString(), text: data.message, timestamp: new Date(), type: MessageType.Bot },
             ]);
             setStartTyping(false);
-            // setConversationEnd(data.end_conv);
+            setConversationEnd(data.end_conv);
+
+            if (conversationEnd) {
+                setTimeout(() => {
+                    setCallId('');
+                    setStartTyping(false);
+                }, 2000);
+            }
         }
     };
 
@@ -136,6 +147,7 @@ const WebChat: React.FC<WidgetStyle & { msgs?: (UserMessage | BotMessage)[] }> =
             right: '20px',
             width: `${widgetStyle.widgetWidth}rem`,
             height: `${widgetStyle.widgetHeight}rem`,
+            backgroundColor: widgetStyle.backgroundColor ? widgetStyle.backgroundColor : 'white',
         },
         header: {
             display: 'flex',
@@ -269,6 +281,7 @@ const WebChat: React.FC<WidgetStyle & { msgs?: (UserMessage | BotMessage)[] }> =
 
     const sendMessage = () => {
         if (!input.trim()) return;
+        setStartTyping(true);
         setMessages([...messages, { id: Date.now().toString(), text: input, timestamp: new Date(), type: MessageType.User }]);
         chatwithBot(input);
         setInput('');
@@ -400,16 +413,27 @@ const WebChat: React.FC<WidgetStyle & { msgs?: (UserMessage | BotMessage)[] }> =
 
                     {/* Footer */}
                     <div style={styles.footer}>
-                        <input
-                            style={styles.input}
+                        {!conversationEnd && (
+                            <><input
+                                style={styles.input}
+                                placeholder="Type your message..."
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') { sendMessage(); } } } /><button style={{ ...styles.sendBtn }} onClick={() => { sendMessage(); } }>
+                                    <BsSendFill />
+                                </button></>
+                        )}
+                        {conversationEnd && (
+                            <><input
+                            style={{...styles.input}}
                             placeholder="Type your message..."
-                            value={input}
+                            value={"Conversation ended. Please click button to start."}
                             onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { sendMessage(); setStartTyping(true); } }}
-                        />
-                        <button style={{ ...styles.sendBtn }} onClick={() => {sendMessage(); setStartTyping(true); }}>
-                            <BsSendFill />
-                        </button>
+                            onKeyDown={(e) => { if (e.key === 'Enter') { chatwithBot();localStorage.removeItem('messages'); setMessages([]); } } } readOnly />
+                            <button style={{ ...styles.sendBtn, fontSize: '2rem' }} onClick={() => { chatwithBot(); localStorage.removeItem('messages'); setMessages([]); } }>
+                                <RiRefreshFill />
+                            </button></>
+                        )}
                     </div>
                 </div>
             )

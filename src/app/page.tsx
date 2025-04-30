@@ -12,8 +12,7 @@ import {
   Text,
   ToggleButton,
   Button,
-  Accordion,
-  SegmentedControl
+  Accordion
 } from "@/once-ui/components";
 import { CodeBlock } from "@/once-ui/modules";
 import WebChat, { WidgetStyle, MessageType } from "@/components/webchat";
@@ -37,8 +36,8 @@ export default function Home() {
   const [customAccentColor, setCustomAccentColor] = useState<string | null>(null);
   const [customBrandColor, setCustomBrandColor] = useState<string | null>(null);
   const [widgetStyle, setWidgetStyle] = useState<WidgetStyle>({
-    brandColor: "blue",
-    accentColor: "blue",
+    brandColor: "#1bb09f",
+    accentColor: "#0189c0",
     fontFamily: "Arial",
     bubblePosition: BubblePosition.End,
     widgetWidth: 25,
@@ -97,7 +96,7 @@ export default function Home() {
     return result;
   };
 
-  const messages = [
+  const messages: any = [
     {
       id: generateRandomString(8),
       text: "Hello, how can I help you?",
@@ -215,7 +214,7 @@ export default function Home() {
             </Column>
             {/* Accent Color */}
             <Column key="accent" gap="xs" fillWidth radius="s">
-              <Text>Accent</Text>
+              <Text>Accent Color</Text>
               {/* <Scroller
                 direction="row"
                 maxHeight={12}
@@ -304,11 +303,20 @@ export default function Home() {
             {/* Advanced Configurations */}
             <Column fillWidth gap="xs">         
               <Accordion
-                title="Advanced Configurations"
+                title="More Custom Configurations"
                 open={false}
                 size="s"
               >
                 <Column gap="xs" horizontal="center" fillWidth>
+                <Column fillWidth gap="1">
+                    <Text>Background Color</Text>
+                    <ColorInput
+                      id="chatbox-bg-color"
+                      label="Custom background color"
+                      value={widgetStyle.backgroundColor || ""}
+                      onChange={(newColor) => setWidgetStyle({ ...widgetStyle, backgroundColor: newColor.target.value })}
+                    />
+                  </Column>
                   <Column fillWidth gap="1">
                     <Text>Header Background Color</Text>
                     <ColorInput
@@ -363,6 +371,7 @@ export default function Home() {
             headerTaglineColor={widgetStyle.headerTaglineColor}
             bottom={widgetStyle.bottom}
             right={widgetStyle.right}
+            backgroundColor={widgetStyle.backgroundColor}
             msgs={messages} />
         </Column>
       </Row>
@@ -379,7 +388,7 @@ export default function Home() {
                 code: `<!DOCTYPE html>
     <head>
     <title>Fonki Chat Widget</title>
-    <script src="webchat.js"></script>
+    <script src="https://fonkichat-ffejbcdde6b8decb.z01.azurefd.net/webchat/webchat.js"></script>
     </head>
     <body>
     <div id="webchat-container"></div>
@@ -394,6 +403,7 @@ export default function Home() {
           widgetWidth: '${widgetStyle.widgetWidth}',
           widgetHeight: '${widgetStyle.widgetHeight}',
           position: "fixed",
+          ${widgetStyle.backgroundColor ? `backgroundColor: '${widgetStyle.backgroundColor}',` : ''}
           ${widgetStyle.headerBackgroundColor ? `headerBackgroundColor: '${widgetStyle.headerBackgroundColor}',` : ''}
           ${widgetStyle.headerTaglineColor ? `headerTaglineColor: '${widgetStyle.headerTaglineColor}',` : ''}
           ${widgetStyle.textColor ? `textColor: '${widgetStyle.textColor}',` : ''}
@@ -409,12 +419,44 @@ export default function Home() {
                 label: 'HTML',
                 language: 'html',
               },
+              {
+                label: 'WordPress',
+                language: 'javascript',
+                code: `function add_fonki_chat_widget() {
+    ?>
+    <script src="https://fonkichat-ffejbcdde6b8decb.z01.azurefd.net/webchat/webchat.js"></script>
+    <div id="webchat-container"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
+          window.renderWebchat.renderWebchat('webchat-container', {
+            brandColor: '${customBrandColor ? customBrandColor : widgetStyle.brandColor}',
+            accentColor: '${customAccentColor ? customAccentColor : widgetStyle.accentColor}',
+            fontFamily: '${widgetStyle.fontFamily}',
+            bubblePosition: '${widgetStyle.bubblePosition}',
+            widgetWidth: '${widgetStyle.widgetWidth}',
+            widgetHeight: '${widgetStyle.widgetHeight}',
+            position: "fixed",
+            ${widgetStyle.backgroundColor ? `backgroundColor: '${widgetStyle.backgroundColor}',` : ''}
+            ${widgetStyle.headerBackgroundColor ? `headerBackgroundColor: '${widgetStyle.headerBackgroundColor}',` : ''}
+            ${widgetStyle.headerTaglineColor ? `headerTaglineColor: '${widgetStyle.headerTaglineColor}',` : ''}
+            ${widgetStyle.textColor ? `textColor: '${widgetStyle.textColor}',` : ''}
+            ${widgetStyle.botKey ? `botKey: '${widgetStyle.botKey}',` : ''}
+          });
+        } else {
+          console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
+        }
+      });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'add_fonki_chat_widget');`.replace(/^\s*[\r\n]/gm, '')
+              }
             ]}
             copyButton={true}
             compact={false}
             textSize="xs" />
         </Column>
     </Column >
-
   );
 }
