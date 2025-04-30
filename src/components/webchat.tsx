@@ -69,7 +69,7 @@ const WebChat: React.FC<WidgetStyle & { msgs?: (UserMessage | BotMessage)[] }> =
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [callId, setCallId] = useState('');
     const [startTyping, setStartTyping] = useState(false);
-    const [conversationEnd, setConversationEnd] = useState(true);
+    const [conversationEnd, setConversationEnd] = useState(false);
 
     useEffect(() => {
         const storedMessages = localStorage.getItem('messages');
