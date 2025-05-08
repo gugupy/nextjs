@@ -10,15 +10,12 @@ import {
   Row,
   ThemeSwitcher,
   Text,
-  Scroller,
-  Flex,
-  IconButton,
   ToggleButton,
-  Button
+  Button,
+  Accordion
 } from "@/once-ui/components";
 import { CodeBlock } from "@/once-ui/modules";
 import WebChat, { WidgetStyle, MessageType } from "@/components/webchat";
-import { SpacingToken } from "@/once-ui/types";
 
 enum BubblePosition {
   Start = "start",
@@ -29,7 +26,7 @@ enum WidgetStyleType {
   brandColor = "brandColor",
   accentColor = "accentColor",
   fontFamily = "fontFamily",
-  bubblePosition = BubblePosition.Start,
+  bubblePosition = "bubblePosition",
   widgetWidth = "widgetWidth",
   widgetHeight = "widgetHeight",
 }
@@ -38,46 +35,57 @@ enum WidgetStyleType {
 export default function Home() {
   const [customAccentColor, setCustomAccentColor] = useState<string | null>(null);
   const [customBrandColor, setCustomBrandColor] = useState<string | null>(null);
-  const [customSchema, setCustomSchema] = useState<string | null>(null);
+  const [widgetStyle, setWidgetStyle] = useState<WidgetStyle>({
+    brandColor: "#1bb09f",
+    accentColor: "#0189c0",
+    fontFamily: "Arial",
+    bubblePosition: BubblePosition.End,
+    widgetWidth: 25,
+    widgetHeight: 37,
+    position: "relative",
+    bottom: "0px",
+    right: "0px",
+  });
+  // const [customSchema, setCustomSchema] = useState<string | null>(null);
 
 
-  React.useEffect(() => {
-    async function updateColors() {
-      try {
-        const response = await fetch('/api/generateColors', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ brandColor: customBrandColor, accentColor: customAccentColor }),
-        });
+  // React.useEffect(() => {
+  //   async function updateColors() {
+  //     try {
+  //       const response = await fetch('/api/generateColors', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({ brandColor: customBrandColor, accentColor: customAccentColor }),
+  //       });
 
-        if (!response.ok) {
-          throw new Error('Failed to update colors');
-        }
+  //       if (!response.ok) {
+  //         throw new Error('Failed to update colors');
+  //       }
 
-        const data = await response.json();
+  //       const data = await response.json();
 
-        if (data.scss) {
-          setCustomSchema(data.scss);
-          const styleElement = document.createElement('style');
-          styleElement.textContent = data.scss;
-          document.head.appendChild(styleElement);
-        } else if (data.error) {
-          console.error('Error applying custom colors:', data.error);
-        }
+  //       if (data.scss) {
+  //         setCustomSchema(data.scss);
+  //         const styleElement = document.createElement('style');
+  //         styleElement.textContent = data.scss;
+  //         document.head.appendChild(styleElement);
+  //       } else if (data.error) {
+  //         console.error('Error applying custom colors:', data.error);
+  //       }
 
-      } catch (error) {
-        console.error('Error updating colors:', error);
-      }
-    }
+  //     } catch (error) {
+  //       console.error('Error updating colors:', error);
+  //     }
+  //   }
 
-    if (customAccentColor || customBrandColor) {
-      updateColors();
-    } else {
-      setCustomSchema(null);
-    }
-  }, [customAccentColor, customBrandColor]);
+  //   if (customAccentColor || customBrandColor) {
+  //     updateColors();
+  //   } else {
+  //     setCustomSchema(null);
+  //   }
+  // }, [customAccentColor, customBrandColor]);
 
   const generateRandomString = (length: number) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -88,7 +96,7 @@ export default function Home() {
     return result;
   };
 
-  const messages = [
+  const messages: any = [
     {
       id: generateRandomString(8),
       text: "Hello, how can I help you?",
@@ -102,15 +110,6 @@ export default function Home() {
       type: MessageType.User,
     },
   ];
-
-  const [widgetStyle, setWidgetStyle] = useState<WidgetStyle>({
-    brandColor: "blue",
-    accentColor: "blue",
-    fontFamily: "Arial",
-    bubblePosition: BubblePosition.End,
-    widgetWidth: 25,
-    widgetHeight: 25,
-  });
 
   const handleWidgetStyle = (value: any, type: WidgetStyleType, isCustom: boolean = false) => {
     if (type === WidgetStyleType.brandColor) {
@@ -145,36 +144,36 @@ export default function Home() {
   return (
     <Column horizontal="center" gap="s" fillWidth padding="m">
       {/* Header */}
-      <Row gap="m" horizontal="space-around" className="header">
-        <ThemeSwitcher center color="accent-alpha-strong" />
-        <Button
-          variant="secondary"
-          weight="default"
-          suffixIcon="close"
-          className="button"
-          size="l"
-          onClick={() => {
-            window.location.href = "/";
-          }}
-        >
-          Exit
-        </Button>
-      </Row>
-
-      <Heading>Fonki Chat Builder</Heading>
+      <Column horizontal="center" gap="s" fillWidth padding="m" zIndex={3}>
+        <Row gap="m" horizontal="space-around" className="header">
+          <ThemeSwitcher center color="accent-alpha-strong" />
+          <Button
+            variant="secondary"
+            weight="default"
+            suffixIcon="close"
+            className="button"
+            size="l"
+            onClick={() => {
+              window.location.href = "/";
+            }}
+          >
+            Exit
+          </Button>
+        </Row>
+        <Heading>Fonki Chat Builder</Heading>
+      </Column>
 
       {/* Main Content */}
-      <Row gap="xl" mobileDirection="column" horizontal="center">
+      <Row mobileDirection="column" horizontal="center" gap="xl">
 
         {/* Widget Configurator */}
         <Column gap="s" horizontal="center">
           <Heading as="h3" variant="body-default-l">Configure Chat Widget</Heading>
-
-          <Column border="neutral-alpha-strong" padding="xs" gap="s" radius="s" fillWidth maxWidth={25}>
+          <Column border="neutral-alpha-strong" padding="m" gap="s" radius="s" overflowY="auto" maxWidth={25} maxHeight={40}>
             {/* Brand Color */}
             <Column key="brand" gap="xs" radius="s">
-              <Text>Brand</Text>
-              <Scroller
+              <Text>Brand Color</Text>
+              {/* <Scroller
                 direction="row"
                 maxHeight={12}
                 gap="s"
@@ -206,7 +205,7 @@ export default function Home() {
                       onClick={() => { handleWidgetStyle(color, WidgetStyleType.brandColor); setCustomBrandColor(null); }} />
                   </Flex>
                 ))}
-              </Scroller>
+              </Scroller> */}
               <ColorInput
                 id="brand-color"
                 label="Custom brand color"
@@ -215,8 +214,8 @@ export default function Home() {
             </Column>
             {/* Accent Color */}
             <Column key="accent" gap="xs" fillWidth radius="s">
-              <Text>Accent</Text>
-              <Scroller
+              <Text>Accent Color</Text>
+              {/* <Scroller
                 direction="row"
                 maxHeight={12}
                 gap="xs"
@@ -248,7 +247,7 @@ export default function Home() {
                       onClick={() => { handleWidgetStyle(color, WidgetStyleType.accentColor); setCustomAccentColor(null); }} />
                   </Flex>
                 ))}
-              </Scroller>
+              </Scroller> */}
               <ColorInput
                 id="accent-color"
                 label="Custom accent color"
@@ -272,9 +271,7 @@ export default function Home() {
                   labelAsPlaceholder={true}
                   value={widgetStyle.widgetWidth}
                   onChange={(width) => {
-                    const value = isNaN(Number(width.target.value))
-                      ? (width.target.value as SpacingToken)
-                      : Number(width.target.value);
+                    const value = Number(width.target.value);
                     setWidgetStyle({ ...widgetStyle, widgetWidth: value });
                   }}
                 ></Input>
@@ -287,9 +284,7 @@ export default function Home() {
                   labelAsPlaceholder={true}
                   value={widgetStyle.widgetHeight}
                   onChange={(height) => {
-                    const value = isNaN(Number(height.target.value))
-                      ? (height.target.value as SpacingToken)
-                      : Number(height.target.value);
+                    const value = Number(height.target.value);
                     setWidgetStyle({ ...widgetStyle, widgetHeight: value });
                   }}
                 ></Input>
@@ -305,11 +300,62 @@ export default function Home() {
               </Row>
             </Column>
 
+            {/* Advanced Configurations */}
+            <Column fillWidth gap="xs">         
+              <Accordion
+                title="More Custom Configurations"
+                open={false}
+                size="s"
+              >
+                <Column gap="xs" horizontal="center" fillWidth>
+                <Column fillWidth gap="1">
+                    <Text>Background Color</Text>
+                    <ColorInput
+                      id="chatbox-bg-color"
+                      label="Custom background color"
+                      value={widgetStyle.backgroundColor || ""}
+                      onChange={(newColor) => setWidgetStyle({ ...widgetStyle, backgroundColor: newColor.target.value })}
+                    />
+                  </Column>
+                  <Column fillWidth gap="1">
+                    <Text>Header Background Color</Text>
+                    <ColorInput
+                      id="header-background-color"
+                      label="Custom header background color"
+                      value={widgetStyle.headerBackgroundColor || ""}
+                      onChange={(newColor) =>
+                        setWidgetStyle({ ...widgetStyle, headerBackgroundColor: newColor.target.value })
+                      }
+                    />
+                  </Column>
+                  <Column fillWidth gap="1">
+                    <Text>Header TagLine Color</Text>
+                    <ColorInput
+                      id="header-background-color"
+                      label="Custom header tagline color"
+                      value={widgetStyle.headerTaglineColor || ""}
+                      onChange={(newColor) =>
+                        setWidgetStyle({ ...widgetStyle, headerTaglineColor: newColor.target.value })
+                      }
+                    />
+                  </Column>
+                  <Column fillWidth gap="1">
+                    <Text>User Message Text Color</Text>
+                    <ColorInput
+                      id="user-message-text-color"
+                      label="Custom color for user messages"
+                      value={widgetStyle.textColor || ""}
+                      onChange={(newColor) => setWidgetStyle({ ...widgetStyle, textColor: newColor.target.value })}
+                    />
+                  </Column>
+                </Column>
+              </Accordion>
+            </Column>
           </Column>
         </Column>
 
         {/* Widget Preview */}
-        <Column horizontal="center" gap="s" maxWidth={"xl"}>
+        <Column gap="s" horizontal="center">
           <Heading as="h3" variant="body-default-l">Preview</Heading>
           <WebChat
             key={`${widgetStyle.brandColor}-${widgetStyle.accentColor}-${widgetStyle.fontFamily}`}
@@ -319,55 +365,98 @@ export default function Home() {
             bubblePosition={widgetStyle.bubblePosition}
             widgetWidth={widgetStyle.widgetWidth}
             widgetHeight={widgetStyle.widgetHeight}
+            position={widgetStyle.position}
+            textColor={widgetStyle.textColor}
+            headerBackgroundColor={widgetStyle.headerBackgroundColor}
+            headerTaglineColor={widgetStyle.headerTaglineColor}
+            bottom={widgetStyle.bottom}
+            right={widgetStyle.right}
+            backgroundColor={widgetStyle.backgroundColor}
             msgs={messages} />
         </Column>
       </Row>
 
       {/* Code snippet */}
       <Column horizontal="center" data-border="rounded" gap="s" radius="s" fillWidth maxWidth={"s"}>
-        <Heading as="h3" variant="body-default-l">
-          Copy the code and paste it in your website
-        </Heading>
-        <CodeBlock
-          codeHeight={30}
-          codeInstances={[
-            {
-              code: `<!DOCTYPE html>
-  <head>
+          <Heading as="h3" variant="body-default-l">
+            Copy the code and paste it in your website
+          </Heading>
+          <CodeBlock
+            codeHeight={30}
+            codeInstances={[
+              {
+                code: `<!DOCTYPE html>
+    <head>
     <title>Fonki Chat Widget</title>
-    <script src="src/public/embed/webchat.js"></script>
-     ${customSchema ? `<style>\n      ${customSchema}\n    </style>\n` : ''}
-  </head>
-  <body>
+    <script src="https://fonkichat-ffejbcdde6b8decb.z01.azurefd.net/webchat/webchat.js"></script>
+    </head>
+    <body>
+    <div id="webchat-container"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+      if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
+        window.renderWebchat.renderWebchat('webchat-container', {
+          brandColor: '${customBrandColor ? customBrandColor : widgetStyle.brandColor}',
+          accentColor: '${customAccentColor ? customAccentColor : widgetStyle.accentColor}',
+          fontFamily: '${widgetStyle.fontFamily}',
+          bubblePosition: '${widgetStyle.bubblePosition}',
+          widgetWidth: '${widgetStyle.widgetWidth}',
+          widgetHeight: '${widgetStyle.widgetHeight}',
+          position: "fixed",
+          ${widgetStyle.backgroundColor ? `backgroundColor: '${widgetStyle.backgroundColor}',` : ''}
+          ${widgetStyle.headerBackgroundColor ? `headerBackgroundColor: '${widgetStyle.headerBackgroundColor}',` : ''}
+          ${widgetStyle.headerTaglineColor ? `headerTaglineColor: '${widgetStyle.headerTaglineColor}',` : ''}
+          ${widgetStyle.textColor ? `textColor: '${widgetStyle.textColor}',` : ''}
+          ${widgetStyle.botKey ? `botKey: '${widgetStyle.botKey}',` : ''}
+        });
+      } else {
+        console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
+      }
+      });
+    </script>
+    </body>
+  </html>`.replace(/^\s*[\r\n]/gm, ''),
+                label: 'HTML',
+                language: 'html',
+              },
+              {
+                label: 'WordPress',
+                language: 'javascript',
+                code: `function add_fonki_chat_widget() {
+    ?>
+    <script src="https://fonkichat-ffejbcdde6b8decb.z01.azurefd.net/webchat/webchat.js"></script>
     <div id="webchat-container"></div>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         if (window.renderWebchat && typeof window.renderWebchat.renderWebchat === 'function') {
           window.renderWebchat.renderWebchat('webchat-container', {
-            brandColor: '${customBrandColor ? 'custom' : widgetStyle.brandColor}',
-            accentColor: '${customAccentColor ? 'custom' : widgetStyle.accentColor}',
+            brandColor: '${customBrandColor ? customBrandColor : widgetStyle.brandColor}',
+            accentColor: '${customAccentColor ? customAccentColor : widgetStyle.accentColor}',
             fontFamily: '${widgetStyle.fontFamily}',
             bubblePosition: '${widgetStyle.bubblePosition}',
             widgetWidth: '${widgetStyle.widgetWidth}',
             widgetHeight: '${widgetStyle.widgetHeight}',
+            position: "fixed",
+            ${widgetStyle.backgroundColor ? `backgroundColor: '${widgetStyle.backgroundColor}',` : ''}
+            ${widgetStyle.headerBackgroundColor ? `headerBackgroundColor: '${widgetStyle.headerBackgroundColor}',` : ''}
+            ${widgetStyle.headerTaglineColor ? `headerTaglineColor: '${widgetStyle.headerTaglineColor}',` : ''}
+            ${widgetStyle.textColor ? `textColor: '${widgetStyle.textColor}',` : ''}
+            ${widgetStyle.botKey ? `botKey: '${widgetStyle.botKey}',` : ''}
           });
         } else {
           console.error('renderWebchat or renderWebchat.renderWebchat is undefined');
         }
       });
     </script>
-  </body>
-</html>`.replace(/^\s*[\r\n]/gm, ''),
-              label: 'HTML',
-              language: 'html',
-            },
-          ]}
-          copyButton={true}
-          compact={false}
-          textSize="xs" />
-      </Column>
-
+    <?php
+}
+add_action('wp_footer', 'add_fonki_chat_widget');`.replace(/^\s*[\r\n]/gm, '')
+              }
+            ]}
+            copyButton={true}
+            compact={false}
+            textSize="xs" />
+        </Column>
     </Column >
-
   );
 }

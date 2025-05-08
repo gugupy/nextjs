@@ -30,6 +30,7 @@ import {
   HiOutlineSparkles,
   HiOutlineComputerDesktop,
   HiOutlineChatBubbleLeftRight,
+  HiAdjustmentsHorizontal
 } from "react-icons/hi2";
 
 import { RiVisaLine, RiSendPlane2Fill } from "react-icons/ri";
@@ -73,7 +74,8 @@ export const iconLibrary: Record<string, IconType> = {
   sparkle: HiOutlineSparkles,
   computer: HiOutlineComputerDesktop,
   chatBubble: HiOutlineChatBubbleLeftRight,
-  send: RiSendPlane2Fill
+  send: RiSendPlane2Fill,
+  HiAdjustmentsHorizontal:HiAdjustmentsHorizontal
 };
 
 export type IconLibrary = typeof iconLibrary;

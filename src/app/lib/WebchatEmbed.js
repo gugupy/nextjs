@@ -10,7 +10,5 @@ export const renderWebchat = (containerId, props) => {
 };
 
 if (typeof window !== 'undefined') {
-    console.log('Window Object:', window);
     window.renderWebchat = renderWebchat;
-    console.log('renderWebchat attached to window:', window.renderWebchat);
 }
